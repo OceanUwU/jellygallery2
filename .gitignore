@@ -1,1 +1,5 @@
 node_modules/
+*.db
+/src/**/*.js
+/src/**/*.js.map
+.env
