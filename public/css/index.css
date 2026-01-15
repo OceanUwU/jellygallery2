@@ -1,3 +1,33 @@
-* {
-    color: red !important;
+body {
+    background: #9bfff0;
+}
+
+body > main > div {
+    background: #9bfff0;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+
+.navbar {
+    background: #7fc9d8;
+    margin-left: 3vw;
+    margin-right: 3vw;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+body > main {
+    margin-top: 1em;
+    background: #2ba0c7;
+}
+
+footer {
+    background: #2ba0c7;
+}
+
+footer > .container > * {
+    flex: 1;
 }

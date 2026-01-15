@@ -6,7 +6,7 @@ import db from './db';
 import { entries } from './db/schema';
 import { eq } from 'drizzle-orm';
 
-(async () => {
+/*(async () => {
     const entry: typeof entries.$inferInsert = {
         id: "test",
         filetype: "png",
@@ -24,7 +24,7 @@ import { eq } from 'drizzle-orm';
         })
         .where(eq(entries.id, entry.id));
     console.log('User info updated!')
-})();
+})();*/
 
 const app = express();
 app.set('views', './views');
