@@ -1,4 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
+
 body {
+    font-family: "Comic Relief", system-ui;
+    font-weight: 400;
+    font-style: normal;
     background-color: #9bfff0;
     background-image: url("/img/bg.png");
     background-attachment: fixed;
