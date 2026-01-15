@@ -1,0 +1,26 @@
+extends /layout
+
+block title
+    | Admin
+
+block content
+    if user == undefined
+        .h-100.w-100.d-flex.align-items-center.justify-content-center.text.center.flex-column
+            p.fs-4 You must be logged in to use admin tools.
+            a.btn.btn-lg.btn-primary(href="/auth/login") Log in
+    else
+        h1
+            if authorised
+                | G.allery Editor Tools
+            else
+                | Admin Tools
+        p
+            | You are logged in as
+            img.mx-1.rounded-circle.border.border-dark(src="https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+"?size=20")
+            =user.username
+            | .
+            =" "
+            a.btn.btn-sm.btn-primary(href="/auth/logout") Log out
+            | ?
+        if !authorised
+            p This account is not authorised to use admin tools.

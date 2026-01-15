@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import admin from './admin/index.js';
+import auth from './auth';
+import admin from './admin/index';
 
 const router = Router();
 
@@ -10,6 +11,7 @@ router.use((req, res, next) => {
     next();
 });
 router.get('/', (req, res) => res.render('home'));
+router.use('/auth/', auth);
 router.use('/admin/', admin);
 
 export default router;

@@ -9,5 +9,12 @@
     HOST=http://localhost:29511/
     NODE_ENV=production
     DB_FILE_NAME=file:data.db
+    SECRET=SOMERANDOMSUPERLONGSTRING
+    DISCORD_APP_ID=1234567890
+    DISCORD_APP_SECRET=XXXXXXXXXX
+    AUTHORISED_USERS=1234567890,1234567891,1234567892
     ```
+    `HOST` is the base url the site will be 
+    `DISCORD_APP` settings can be obtained from [here](https://discord.com/developers/applications) by creating an application (make sure you add `HOST/auth/cb` as a redirect in the oauth settings where `HOST` is the same as `HOST` in your .env file!)
+    `AUTHORISED_USERS` is a comma-separated list of [discord user ids](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID) who are authorised to use the editor tools at `/admin`
 1. `npm start`
