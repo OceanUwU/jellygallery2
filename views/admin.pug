@@ -14,13 +14,62 @@ block content
                 | G.allery Editor Tools
             else
                 | Admin Tools
-        p
+        span.mb-2
             | You are logged in as
             img.mx-1.rounded-circle.border.border-dark(src="https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+"?size=20")
             =user.username
-            | .
             =" "
-            a.btn.btn-sm.btn-primary(href="/auth/logout") Log out
+            a.btn.btn-sm.btn-info(href="/auth/logout") Log out
             | ?
         if !authorised
             p This account is not authorised to use admin tools.
+        else
+            .d-flex.gap-2.flex-wrap.justify-content-center.mb-4
+                a.btn.btn-primary.btn-success Download Full Gallery Backup
+            h2 Entries
+            p
+                | The "thumb" property overrides the file's thumbnail. If the file is an image (unless it's an animated GIF image), this will be generated automatically, otherwise this must be provided.
+                br
+                | The order of tags is the order in which their info boxes appear on the entry's page, 
+            button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Add Entry
+
+            button.btn.btn-secondary Edit Entry
+            h2.mt-4 Tags
+
+            button.btn.btn-lg.btn-primary Add Tag
+            button.btn.btn-secondary Edit Tag
+
+            .modal.fade#uploadModal(tabindex="-1")
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            h1.modal-title.fs-5 Upload New Entry
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                        .modal-body
+                            .d-flex.flex-column.align-items-center.justify-content-center.w-100#entryDisplay
+                                input#entryFile(type="file")
+                                img.mw-100.d-none.border#entryImageDisplay
+                                audio.w-100.border.d-none#entryAudioPreview(controls)
+                                    source#entryAudioPreviewSource
+                                video.border.mw-100.d-none.mb-2#entryVideoDisplay(controls)
+                                    source#entryVideoDisplaySource
+                                span.small.text-secondary.d-none#entryVideoThumbnailTitle Thumbnail (drag video controller to change):
+                                span.small.text-secondary.d-none#entryGIFThumbnailTitle Thumbnail (frame #[input#entryGIFFramePicker(type="number" style="width: 4em;" min=0)]):
+                                img.d-block.d-none.border#entryThumbnailDisplay(title="Generated Thumbnail" style="max-width: 50%;")
+                            .d-none#entryDetailsChoice
+                                .d-flex.align-items-center.justify-content-center.w-100.mb-4
+                                    input#entryFilename(placeholder="Filename" style="width: 10em")
+                                    input#entryFileExtension(placeholder="File Extension" style="width: 3em;" disabled)
+                                span.small.text-secondary
+                                    | Filenames must be unique. Extension is not taken into account, for example a file named "jelly.png" and "jelly.mp4" cannot both exist.
+                                    hr
+                                    | Uploading a GIF or a video file shows a thumbnail generator. Make sure it's set to an adequate frame, as this cannot be changed later without deleting and re-creating the entry.
+                                    hr
+                                    | After uploading a file, it's added to the database as "unlisted". From the G.allery Editor you can edit the entry's title, date, tags, and description (if applicable). When editing an entry, make sure you tick the item as "Listed" if it's ready to be published.
+                        .modal-footer
+                            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+                            button.btn.btn-primary#uploadEntryButton(type="button" disabled) Upload
+        
+append js
+    script(src="https://unpkg.com/omggif@1.0.10/omggif.js")
+    script(src="/js/admin.js")

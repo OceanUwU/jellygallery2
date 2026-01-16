@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `listed` integer NOT NULL;

@@ -5,7 +5,8 @@ export const entries = sqliteTable("entries", {
   filetype: text().notNull(),
   title: text().notNull(),
   description: text(),
-  date: int().notNull(),
+  date: int({ mode: 'timestamp' }).notNull(),
+  listed: int({ mode: 'boolean' }).notNull(),
 });
 
 enum TagType {
