@@ -76,3 +76,35 @@ entryFilePicker.addEventListener("change", () => {
         document.getElementById("uploadEntryButton").removeAttribute('disabled');
     }
 });
+
+document.getElementById('uploadEntryButton').onclick = () => {
+    document.getElementById("uploadEntryButton").setAttribute('disabled', '');
+    document.getElementById('uploadingStatus').classList.remove('d-none');
+    document.getElementById('uploadErrorText').innerText = '';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/admin/upload", true);
+    //xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    let form = new FormData();
+    form.append('name', document.getElementById("entryFilename").value);
+    form.append('extension', document.getElementById("entryFileExtension").value.substr(1));
+    form.append('file', entryFilePicker.files[0]);
+    if (!entryThumbnailDisplay.classList.contains('d-none')) {
+        var byteString = atob(entryThumbnailDisplay.src.split(',')[1]);
+        var mimeString = entryThumbnailDisplay.src.split(',')[0].split(':')[1].split(';')[0];
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < byteString.length; i++)
+            ia[i] = byteString.charCodeAt(i);
+        form.append('thumb', new Blob([ab], {type: mimeString}));
+    }
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 201) {
+            location.reload();
+        } else {
+            document.getElementById('uploadingStatus').classList.add('d-none');
+            document.getElementById('uploadErrorText').innerText = xhr.responseText;
+            document.getElementById("uploadEntryButton").removeAttribute('disabled');
+        }
+    };
+    xhr.send(form);
+}

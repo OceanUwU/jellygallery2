@@ -27,13 +27,29 @@ block content
             .d-flex.gap-2.flex-wrap.justify-content-center.mb-4
                 a.btn.btn-primary.btn-success Download Full Gallery Backup
             h2 Entries
-            p
-                | The "thumb" property overrides the file's thumbnail. If the file is an image (unless it's an animated GIF image), this will be generated automatically, otherwise this must be provided.
-                br
-                | The order of tags is the order in which their info boxes appear on the entry's page, 
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Add Entry
 
             button.btn.btn-secondary Edit Entry
+            if unlisted.length > 0
+                h5.mt-4 Unlisted Entries
+                .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
+                    each entry in unlisted
+                        .card
+                            .d-flex.align-items-center(style="gap: 0.2em")
+                                img.rounded-start.border-end(src="/thumb/"+entry.id+".png" style="object-fit: contain; width: 30px; height: 30px;")
+                                span.mx-1 #[b #{entry.id}]#[span.small .#{entry.filetype}]
+                                button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+
+            h5.mt-4 Recently Listed Entries
+            .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
+                if recent.length == 0
+                    p no listed entries yet!
+                each entry in recent
+                    .card
+                        .d-flex.align-items-center(style="gap: 0.2em")
+                            img.rounded-start.border-end(src="/thumb/"+entry.id+".png" style="object-fit: contain; width: 40px; height: 40px;")
+                            span.mx-1 #[b #{entry.title}]
+                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
             h2.mt-4 Tags
 
             button.btn.btn-lg.btn-primary Add Tag
@@ -67,7 +83,9 @@ block content
                                     hr
                                     | After uploading a file, it's added to the database as "unlisted". From the G.allery Editor you can edit the entry's title, date, tags, and description (if applicable). When editing an entry, make sure you tick the item as "Listed" if it's ready to be published.
                         .modal-footer
+                            span.text-danger#uploadErrorText
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+                            .spinner-border.text-secondary.d-none#uploadingStatus(role="status")
                             button.btn.btn-primary#uploadEntryButton(type="button" disabled) Upload
         
 append js

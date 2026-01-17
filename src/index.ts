@@ -34,6 +34,7 @@ import { eq } from 'drizzle-orm';
 
 
 const app = express();
+app.use(express.urlencoded({ extended: false }));
 app.use(expressSession({
     store: new new SQLiteStore(expressSession)({ db: "sessions.db" }),
     secret: config.secret,
@@ -57,5 +58,7 @@ app.locals.basedir = resolve() + '/views';
 app.set('view engine', 'pug');
 app.use(route);
 app.use('/', express.static(resolve() + '/public'));
+app.use('/file/', express.static(resolve() + '/gallery/files'));
+app.use('/thumb/', express.static(resolve() + '/gallery/thumb'));
 
 app.listen(config.port, () => console.log(`Web server started on port ${config.port}. This should be accessible from ${config.host}.`));
