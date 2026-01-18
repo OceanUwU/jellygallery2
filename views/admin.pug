@@ -53,7 +53,28 @@ block content
             
             h2.mt-4 Tags
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newTagModal") Add Tag
-            button.btn.btn-secondary Edit Tag
+            //button.btn.btn-secondary Edit Tag
+
+            h5.mt-4 Recently Created Tags
+            .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
+                if recentTags.length == 0
+                    p no tags yet!
+                each tag in recentTags
+                    .card
+                        .d-flex.align-items-center(style="gap: 0.2em")
+                            span.ms-2.me-1= tag.name
+                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+            h5.mt-4 All Tags
+            p Click a tag to edit it.
+            mixin tagList(type, name)
+                span
+                    b= name
+                    = ": "
+                    != allTags.filter(t => t.t == type).map(t => '<a href="#" onclick="editTag('+t.i+');event.preventDefault();")>'+t.n+'</a>').join(', ')
+            +tagList(0, "Generic")
+            +tagList(1, "Author")
+            +tagList(2, "Character")
+            +tagList(3, "Arc")
 
             .modal.fade#uploadModal(tabindex="-1")
                 .modal-dialog
@@ -100,8 +121,7 @@ block content
                                 option(value="0") Generic
                                 option(value="1") Author
                                 option(value="2") Character
-                                option(value="3") Format
-                                option(value="4") Arc
+                                option(value="3") Arc
                             input.form-control.w-100#newTagName(placeholder="Tag Title")
                             br
                             span.small.text-secondary
@@ -112,15 +132,48 @@ block content
                             .spinner-border.text-secondary.d-none#createTagStatus(role="status")
                             button.btn.btn-primary#createTagButton(type="button" disabled) Upload
 
-            h5.mt-4 Recently Created Tags
-            .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
-                if recentTags.length == 0
-                    p no tags yet!
-                each tag in recentTags
-                    .card
-                        .d-flex.align-items-center(style="gap: 0.2em")
-                            span.ms-2.me-1= tag.name
-                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+            .modal.fade.modal-xl#editEntryModal(tabindex="-1")
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            h1.modal-title.fs-5 Edit Tag
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                        .modal-body
+                            p yo
+                            br
+                            span.small.text-secondary
+                                | yo
+                        .modal-footer
+                            span.text-danger#editEntryErrorText
+                            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+                            .spinner-border.text-secondary.d-none#editEntryStatus(role="status")
+                            button.btn.btn-danger#deleteEntryButton(type="button") Delete
+                            button.btn.btn-primary#editEntryButton(type="button") Save
+
+            .modal.fade.modal-lg#editTagModal(tabindex="-1")
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            h1.modal-title.fs-5 Edit Tag
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                        .modal-body
+                            select.form-select.mb-2#editTagType
+                                option(value="" disabled selected) Type
+                                option(value="0") Generic
+                                option(value="1") Author
+                                option(value="2") Character
+                                option(value="3") Arc
+                            input.form-control.w-100.mb-2#editTagName(placeholder="Tag Title")
+                            textarea.form-control.w-100#editTagDesc(placeholder="Description")
+                            br
+                            span.small.text-secondary
+                                | Tag descriptions should be short (one or two lines) since multiple of them will be shown at once. Descriptions cannot have formatting.
+                        .modal-footer
+                            span.text-danger#editTagErrorText
+                            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+                            .spinner-border.text-secondary.d-none#editTagStatus(role="status")
+                            button.btn.btn-danger#deleteTagButton(type="button") Delete
+                            button.btn.btn-primary#editTagButton(type="button") Save
         
 append js
     script(src="https://unpkg.com/omggif@1.0.10/omggif.js")

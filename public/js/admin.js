@@ -142,3 +142,39 @@ document.getElementById('createTagButton').onclick = () => {
     };
     xhr.send(JSON.stringify(body));
 }
+
+let editingTag = 0;
+async function editTag(id) {
+    let tag = await (await fetch("/api/tag/"+id)).json();
+    editingTag = id;
+    console.log(tag);
+    document.getElementById('editTagName').value = tag.name;
+    document.getElementById('editTagType').value = tag.type;
+    document.getElementById('editTagDesc').value = tag.description;
+    new bootstrap.Modal(document.getElementById('editTagModal'), {}).show();
+}
+
+document.getElementById('editTagButton').onclick = () => {
+    document.getElementById("editTagButton").setAttribute('disabled', '');
+    document.getElementById('editTagStatus').classList.remove('d-none');
+    document.getElementById('editTagErrorText').innerText = '';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/admin/edit-tag", true);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    let body = {
+        id: editingTag,
+        name: document.getElementById('editTagName').value,
+        type: Number.parseInt(document.getElementById('editTagType').value),
+        description: document.getElementById('editTagDesc').value
+    };
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 201) {
+            location.reload();
+        } else {
+            document.getElementById('editTagStatus').classList.add('d-none');
+            document.getElementById('editTagErrorText').innerText = xhr.responseText;
+            document.getElementById("editTagButton").removeAttribute('disabled');
+        }
+    };
+    xhr.send(JSON.stringify(body));
+}

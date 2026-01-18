@@ -1,11 +1,11 @@
 import express from 'express';
 import { Router } from 'express';
-import config from '../../config';
+import config from '../config';
 import multer from 'multer';
 import fs from 'fs';
-import { entries, tags, TagType } from '../../db/schema';
-import db from '../../db';
-import { eq, desc } from 'drizzle-orm';
+import { entries, tags, TagType } from '../db/schema';
+import db from '../db';
+import { eq, desc, asc } from 'drizzle-orm';
 import sharp from 'sharp';
 
 const router = Router();
@@ -20,6 +20,7 @@ router.get('/', async (req, res) => res.render('admin', {
     unlisted: await db.select().from(entries).where(eq(entries.listed, false)),
     recent: await db.select().from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.created)).limit(3),
     recentTags: await db.select().from(tags).orderBy(desc(tags.created)).limit(5),
+    allTags: await db.select({i: tags.id, n: tags.name, t: tags.type}).from(tags).orderBy(asc(tags.name)),
 }));
 
 const fileLimit = 50;
@@ -55,7 +56,7 @@ router.post('/upload', express.urlencoded({ extended: false }), (req, res) => {
             id: req.body.name.toLowerCase(),
             filetype: req.body.extension.toLowerCase(),
             title: "",
-            date: new Date(0),
+            date: new Date(),
             listed: false,
             created: new Date(),
             createdBy: req.user['id'],
@@ -102,6 +103,24 @@ router.post('/create-tag', express.json(), async (req, res) => {
     if ((await db.select().from(tags).where(eq(tags.name, tag.name))).length > 0)
         return res.status(400).send("Tag with that name already exists!");
     await db.insert(tags).values(tag);
+    return res.sendStatus(201);
+});
+
+
+router.post('/edit-tag', express.json(), async (req, res) => {
+    if (!req["authorised"]) return res.sendStatus(403);
+    if (req.body == undefined) return res.status(400).send("unknown error");
+    if (typeof req.body.name !== 'string' || req.body.name.length > 32 || req.body.name.length < 1 || !Number.isInteger(req.body.type) || req.body.type < 0 || req.body.type >= TagType.Max)
+        return res.status(400).send("Name too long (max 32 chars) or too short");
+    if (!req.body.name.match(/^([0-9a-z]+)$/i))
+        return res.status(400).send("Name must include only letters and numbers");
+    if (typeof req.body.description !== 'string' || req.body.description.length > 2000)
+        return res.status(400).send("Description too long (max 2000 chars)");
+    await db.update(tags).set({
+        name: req.body.name,
+        type: req.body.type,
+        description: req.body.description == '' ? null : req.body.description,
+    }).where(eq(tags.id, req.body.id));
     return res.sendStatus(201);
 });
 
