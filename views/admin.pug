@@ -63,7 +63,7 @@ block content
                     .card
                         .d-flex.align-items-center(style="gap: 0.2em")
                             span.ms-2.me-1= tag.name
-                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editTag("+tag.id+")") Edit
             h5.mt-4 All Tags
             p Click a tag to edit it.
             mixin tagList(type, name)
