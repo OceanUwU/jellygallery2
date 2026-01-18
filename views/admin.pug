@@ -130,7 +130,7 @@ block content
                             span.text-danger#createTagErrorText
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
                             .spinner-border.text-secondary.d-none#createTagStatus(role="status")
-                            button.btn.btn-primary#createTagButton(type="button" disabled) Upload
+                            button.btn.btn-primary#createTagButton(type="button" disabled) Create
 
             .modal.fade.modal-xl#editEntryModal(tabindex="-1")
                 .modal-dialog
@@ -171,9 +171,23 @@ block content
                         .modal-footer
                             span.text-danger#editTagErrorText
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
-                            .spinner-border.text-secondary.d-none#editTagStatus(role="status")
                             button.btn.btn-danger#deleteTagButton(type="button") Delete
+                            .spinner-border.text-secondary.d-none#editTagStatus(role="status")
                             button.btn.btn-primary#editTagButton(type="button") Save
+
+            .modal.fade#deleteTagModal(tabindex="-1")
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            h1.modal-title.fs-5 Deleting Tag!
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                        .modal-body
+                            span Are you sure you want to delete the tag "#[span#deleteTagName]"? All entries with this tag will no longer have it.
+                        .modal-footer
+                            span.text-danger#deleteTagErrorText
+                            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+                            .spinner-border.text-secondary.d-none#deleteTagStatus(role="status")
+                            button.btn.btn-danger#deleteTagConfirm(type="button") Do it!!
         
 append js
     script(src="https://unpkg.com/omggif@1.0.10/omggif.js")

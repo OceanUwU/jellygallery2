@@ -107,7 +107,7 @@ document.getElementById('uploadEntryButton').onclick = () => {
         }
     };
     xhr.send(form);
-}
+};
 
 
 const newTagType = document.getElementById("newTagType");
@@ -118,7 +118,7 @@ newTagName.value = "";
 newTagType.onchange = () => {
     if (newTagType.value != "")
         document.getElementById("createTagButton").removeAttribute('disabled');
-}
+};
 
 document.getElementById('createTagButton').onclick = () => {
     document.getElementById("createTagButton").setAttribute('disabled', '');
@@ -141,7 +141,7 @@ document.getElementById('createTagButton').onclick = () => {
         }
     };
     xhr.send(JSON.stringify(body));
-}
+};
 
 let editingTag = 0;
 async function editTag(id) {
@@ -177,4 +177,32 @@ document.getElementById('editTagButton').onclick = () => {
         }
     };
     xhr.send(JSON.stringify(body));
-}
+};
+
+document.getElementById('deleteTagButton').onclick = async () => {
+    let tag = await (await fetch("/api/tag/"+editingTag)).json();
+    document.getElementById('deleteTagName').innerText = tag.name;
+    document.getElementById('editTagModal').style.zIndex = 1050;
+    new bootstrap.Modal(document.getElementById('deleteTagModal'), {}).show();
+};
+document.getElementById('deleteTagModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('editTagModal').style.zIndex = 1055;
+})
+document.getElementById('deleteTagConfirm').onclick = async () => {
+    document.getElementById("deleteTagConfirm").setAttribute('disabled', '');
+    document.getElementById('deleteTagStatus').classList.remove('d-none');
+    document.getElementById('deleteTagErrorText').innerText = '';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/admin/delete-tag/"+editingTag, true);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            location.reload();
+        } else {
+            document.getElementById('deleteTagStatus').classList.add('d-none');
+            document.getElementById('deleteTagErrorText').innerText = xhr.responseText;
+            document.getElementById("deleteTagConfirm").removeAttribute('disabled');
+        }
+    };
+    xhr.send();
+};

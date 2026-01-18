@@ -3,7 +3,7 @@ import { Router } from 'express';
 import config from '../config';
 import multer from 'multer';
 import fs from 'fs';
-import { entries, tags, TagType } from '../db/schema';
+import { entries, entryTags, tags, TagType } from '../db/schema';
 import db from '../db';
 import { eq, desc, asc } from 'drizzle-orm';
 import sharp from 'sharp';
@@ -92,8 +92,6 @@ router.post('/create-tag', express.json(), async (req, res) => {
     if (req.body == undefined) return res.status(400).send("unknown error");
     if (typeof req.body.name !== 'string' || req.body.name.length > 32 || req.body.name.length < 1 || !Number.isInteger(req.body.type) || req.body.type < 0 || req.body.type >= TagType.Max)
         return res.status(400).send("Name too long (max 32 chars) or too short");
-    if (!req.body.name.match(/^([0-9a-z]+)$/i))
-        return res.status(400).send("Name must include only letters and numbers");
     const tag: typeof tags.$inferInsert = {
         name: req.body.name,
         type: req.body.type,
@@ -112,8 +110,6 @@ router.post('/edit-tag', express.json(), async (req, res) => {
     if (req.body == undefined) return res.status(400).send("unknown error");
     if (typeof req.body.name !== 'string' || req.body.name.length > 32 || req.body.name.length < 1 || !Number.isInteger(req.body.type) || req.body.type < 0 || req.body.type >= TagType.Max)
         return res.status(400).send("Name too long (max 32 chars) or too short");
-    if (!req.body.name.match(/^([0-9a-z]+)$/i))
-        return res.status(400).send("Name must include only letters and numbers");
     if (typeof req.body.description !== 'string' || req.body.description.length > 2000)
         return res.status(400).send("Description too long (max 2000 chars)");
     await db.update(tags).set({
@@ -122,6 +118,16 @@ router.post('/edit-tag', express.json(), async (req, res) => {
         description: req.body.description == '' ? null : req.body.description,
     }).where(eq(tags.id, req.body.id));
     return res.sendStatus(201);
+});
+
+
+router.post('/delete-tag/:id', express.json(), async (req, res) => {
+    if (!req["authorised"]) return res.sendStatus(403);
+    let id = Number.parseInt(req.params.id);
+    if (Number.isNaN(id)) return res.status(400).send("id must be a number");
+    await db.delete(tags).where(eq(tags.id, id));
+    await db.delete(entryTags).where(eq(entryTags.tag, id));
+    return res.sendStatus(200);
 });
 
 export default router;
