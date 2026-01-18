@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@libsql/client": "^0.17.0",
+    "@types/jszip": "^3.4.0",
     "@types/multer": "^2.0.0",
     "@types/passport": "^1.0.17",
     "@types/sharp": "^0.31.1",
@@ -20,6 +21,7 @@
     "drizzle-orm": "^0.45.1",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
+    "jszip": "^3.10.1",
     "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4",

@@ -24,8 +24,13 @@ block content
         if !authorised
             p This account is not authorised to use admin tools.
         else
-            .d-flex.gap-2.flex-wrap.justify-content-center.mb-4
-                a.btn.btn-primary.btn-success Download Full Gallery Backup
+            button.btn.btn-warning.mb-2#genBackup(type="button") Request to Generate Full Gallery Backup
+            .progress.w-100.mb-4.d-none#backupProgress(role="progressbar")
+                .progress-bar#backupProgressProgress(style="transition: width 0.08s ease-out;width:0%")
+            if backupDate != null
+                .d-flex.flex-column.align-items-center#dl-backup
+                    p Last Backup: #[b#backupDate=backupDate]
+                    a.btn.btn-success.mb-4(href="/admin/jellgall-backup.zip") Download Full Gallery Backup (#[span#backupSize=backupSize])
             h2 Entries
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Add Entry
             button.btn.btn-secondary Edit Entry

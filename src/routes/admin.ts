@@ -7,6 +7,8 @@ import { entries, entryTags, tags, TagType } from '../db/schema';
 import db from '../db';
 import { eq, desc, asc } from 'drizzle-orm';
 import sharp from 'sharp';
+import JSZip from 'jszip';
+import { resolve } from 'path';
 
 const router = Router();
 
@@ -21,6 +23,8 @@ router.get('/', async (req, res) => res.render('admin', {
     recent: await db.select().from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.created)).limit(3),
     recentTags: await db.select().from(tags).orderBy(desc(tags.created)).limit(5),
     allTags: await db.select({i: tags.id, n: tags.name, t: tags.type}).from(tags).orderBy(asc(tags.name)),
+    backupDate: backupDone ? fs.statSync("backup.zip").birthtimeMs : null,
+    backupSize: backupDone ? fs.statSync("backup.zip").size : null,
 }));
 
 const fileLimit = 50;
@@ -129,5 +133,33 @@ router.post('/delete-tag/:id', express.json(), async (req, res) => {
     await db.delete(entryTags).where(eq(entryTags.tag, id));
     return res.sendStatus(200);
 });
+
+function zipRecursive(zip, path, fullPath) {
+    if (fullPath == null) fullPath = path;
+    let folder = zip.folder(path);
+    for (let item of fs.readdirSync(fullPath))
+        if (item.includes('.'))
+            folder.file(item, fs.readFileSync(`${fullPath}/${item}`));
+        else
+            zipRecursive(folder, item, `${fullPath}/${item}`);
+}
+
+let backupProgress = -1;
+let backupDone = fs.existsSync("backup.zip");
+
+router.get('/generate-backup', async (req, res) => {
+    backupProgress = 0;
+    backupDone = false;
+    const zip = new JSZip();
+    zip.file("data.db", fs.readFileSync("data.db"));
+    zipRecursive(zip, "gallery", null);
+    res.status(202);
+    let generated = await zip.generateAsync({type: 'blob'}, data => backupProgress = data.percent);
+    backupDone = true;
+    fs.createWriteStream("backup.zip").write(Buffer.from(await generated.arrayBuffer()));
+});
+
+router.get('/backup-progress', (req, res) => res.json(backupDone ? 101 : backupProgress));
+router.get('/jellgall-backup.zip', (req, res) => res.sendFile(resolve() + "/backup.zip"));
 
 export default router;

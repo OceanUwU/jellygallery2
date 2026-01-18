@@ -206,3 +206,38 @@ document.getElementById('deleteTagConfirm').onclick = async () => {
     };
     xhr.send();
 };
+
+// Source - https://stackoverflow.com/a/18650828
+function formatBytes(bytes, decimals = 2) {
+    if (!+bytes) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+}
+
+let backupDate = document.getElementById('backupDate');
+if (backupDate != null) backupDate.innerText = new Date(Number.parseFloat(backupDate.innerText)).toLocaleString();
+let backupSize = document.getElementById('backupSize');
+if (backupSize != null) backupSize.innerText = formatBytes(Number.parseInt(backupSize.innerText));
+
+
+document.getElementById('genBackup').onclick = async () => {
+    document.getElementById('genBackup').setAttribute('disabled', '');
+    if (document.getElementById('dl-backup') != null)
+        document.getElementById('dl-backup').remove();
+    document.getElementById('backupProgress').classList.remove('d-none');
+    let lastProgress = 0;
+    fetch("/admin/generate-backup");
+    setInterval(async () => {
+        let progress = await (await fetch("/admin/backup-progress")).json();
+        console.log(progress);
+        if (progress > lastProgress) {
+            lastProgress = progress;
+            document.getElementById('backupProgressProgress').style.width = progress + "%";
+        }
+        if (progress > 100)
+            location.reload();
+    }, 100);
+};
