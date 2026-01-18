@@ -7,14 +7,17 @@ export const entries = sqliteTable("entries", {
   description: text(),
   date: int({ mode: 'timestamp' }).notNull(),
   listed: int({ mode: 'boolean' }).notNull(),
+  created: int({ mode: 'timestamp' }),
+  createdBy: text(),
 });
 
-enum TagType {
+export enum TagType {
     Generic = 0,
     Author = 1,
     Character = 2,
     Format = 3,
     Arc = 4,
+    Max = 5,
 };
 
 export const tags = sqliteTable("tags", {
@@ -22,6 +25,8 @@ export const tags = sqliteTable("tags", {
     type: int().notNull(),
     name: text().notNull(),
     description: text(),
+    created: int({ mode: 'timestamp' }),
+    createdBy: text(),
 });
 
 export const entryTags = sqliteTable("entry_tags", {

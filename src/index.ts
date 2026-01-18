@@ -34,7 +34,6 @@ import { eq } from 'drizzle-orm';
 
 
 const app = express();
-app.use(express.urlencoded({ extended: false }));
 app.use(expressSession({
     store: new new SQLiteStore(expressSession)({ db: "sessions.db" }),
     secret: config.secret,

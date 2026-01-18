@@ -28,8 +28,8 @@ block content
                 a.btn.btn-primary.btn-success Download Full Gallery Backup
             h2 Entries
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Add Entry
-
             button.btn.btn-secondary Edit Entry
+
             if unlisted.length > 0
                 h5.mt-4 Unlisted Entries
                 .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
@@ -50,9 +50,9 @@ block content
                             img.rounded-start.border-end(src="/thumb/"+entry.id+".png" style="object-fit: contain; width: 40px; height: 40px;")
                             span.mx-1 #[b #{entry.title}]
                             button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+            
             h2.mt-4 Tags
-
-            button.btn.btn-lg.btn-primary Add Tag
+            button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newTagModal") Add Tag
             button.btn.btn-secondary Edit Tag
 
             .modal.fade#uploadModal(tabindex="-1")
@@ -73,9 +73,9 @@ block content
                                 span.small.text-secondary.d-none#entryGIFThumbnailTitle Thumbnail (frame #[input#entryGIFFramePicker(type="number" style="width: 4em;" min=0)]):
                                 img.d-block.d-none.border#entryThumbnailDisplay(title="Generated Thumbnail" style="max-width: 50%;")
                             .d-none#entryDetailsChoice
-                                .d-flex.align-items-center.justify-content-center.w-100.mb-4
-                                    input#entryFilename(placeholder="Filename" style="width: 10em")
-                                    input#entryFileExtension(placeholder="File Extension" style="width: 3em;" disabled)
+                                .input-group.mb-4
+                                    input.form-control#entryFilename(type="text" placeholder="Filename" style="width: 12em")
+                                    span.input-group-text#entryFileExtension
                                 span.small.text-secondary
                                     | Filenames must be unique. Extension is not taken into account, for example a file named "jelly.png" and "jelly.mp4" cannot both exist.
                                     hr
@@ -87,6 +87,40 @@ block content
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
                             .spinner-border.text-secondary.d-none#uploadingStatus(role="status")
                             button.btn.btn-primary#uploadEntryButton(type="button" disabled) Upload
+
+            .modal.fade#newTagModal(tabindex="-1")
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            h1.modal-title.fs-5 Create New Tag
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                        .modal-body
+                            select.form-select.mb-2#newTagType
+                                option(value="" disabled selected) Type
+                                option(value="0") Generic
+                                option(value="1") Author
+                                option(value="2") Character
+                                option(value="3") Format
+                                option(value="4") Arc
+                            input.form-control.w-100#newTagName(placeholder="Tag Title")
+                            br
+                            span.small.text-secondary
+                                | Tags can be edited after being created to add a description.
+                        .modal-footer
+                            span.text-danger#createTagErrorText
+                            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+                            .spinner-border.text-secondary.d-none#createTagStatus(role="status")
+                            button.btn.btn-primary#createTagButton(type="button" disabled) Upload
+
+            h5.mt-4 Recently Created Tags
+            .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
+                if recentTags.length == 0
+                    p no tags yet!
+                each tag in recentTags
+                    .card
+                        .d-flex.align-items-center(style="gap: 0.2em")
+                            span.ms-2.me-1= tag.name
+                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
         
 append js
     script(src="https://unpkg.com/omggif@1.0.10/omggif.js")

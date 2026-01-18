@@ -15,6 +15,13 @@
       "when": 1768560756893,
       "tag": "0001_charming_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1768719056746,
+      "tag": "0002_marvelous_tigra",
+      "breakpoints": true
     }
   ]
 }

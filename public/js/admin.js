@@ -72,7 +72,7 @@ entryFilePicker.addEventListener("change", () => {
             entryAudioDisplay.load();
         }
         document.getElementById("entryFilename").value = filename;
-        document.getElementById("entryFileExtension").value = extension;
+        document.getElementById("entryFileExtension").innerText = extension;
         document.getElementById("uploadEntryButton").removeAttribute('disabled');
     }
 });
@@ -86,7 +86,7 @@ document.getElementById('uploadEntryButton').onclick = () => {
     //xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     let form = new FormData();
     form.append('name', document.getElementById("entryFilename").value);
-    form.append('extension', document.getElementById("entryFileExtension").value.substr(1));
+    form.append('extension', document.getElementById("entryFileExtension").innerText.substr(1));
     form.append('file', entryFilePicker.files[0]);
     if (!entryThumbnailDisplay.classList.contains('d-none')) {
         var byteString = atob(entryThumbnailDisplay.src.split(',')[1]);
@@ -107,4 +107,38 @@ document.getElementById('uploadEntryButton').onclick = () => {
         }
     };
     xhr.send(form);
+}
+
+
+const newTagType = document.getElementById("newTagType");
+const newTagName = document.getElementById("newTagName");
+newTagType.value = "";
+newTagName.value = "";
+
+newTagType.onchange = () => {
+    if (newTagType.value != "")
+        document.getElementById("createTagButton").removeAttribute('disabled');
+}
+
+document.getElementById('createTagButton').onclick = () => {
+    document.getElementById("createTagButton").setAttribute('disabled', '');
+    document.getElementById('createTagStatus').classList.remove('d-none');
+    document.getElementById('createTagErrorText').innerText = '';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/admin/create-tag", true);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    let body = {
+        name: newTagName.value,
+        type: Number.parseInt(newTagType.value),
+    };
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 201) {
+            location.reload();
+        } else {
+            document.getElementById('createTagStatus').classList.add('d-none');
+            document.getElementById('createTagErrorText').innerText = xhr.responseText;
+            document.getElementById("createTagButton").removeAttribute('disabled');
+        }
+    };
+    xhr.send(JSON.stringify(body));
 }

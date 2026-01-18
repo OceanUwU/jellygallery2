@@ -1,8 +1,9 @@
+import express from 'express';
 import { Router } from 'express';
 import config from '../../config';
 import multer from 'multer';
 import fs from 'fs';
-import { entries } from '../../db/schema';
+import { entries, tags, TagType } from '../../db/schema';
 import db from '../../db';
 import { eq, desc } from 'drizzle-orm';
 import sharp from 'sharp';
@@ -17,7 +18,8 @@ router.get('/', async (req, res) => res.render('admin', {
     user: req.user,
     authorised: req["authorised"],
     unlisted: await db.select().from(entries).where(eq(entries.listed, false)),
-    recent: await db.select().from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.date)).limit(5),
+    recent: await db.select().from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.created)).limit(3),
+    recentTags: await db.select().from(tags).orderBy(desc(tags.created)).limit(5),
 }));
 
 const fileLimit = 50;
@@ -33,7 +35,7 @@ let upload = multer({
 const thumbnailSize = 128;
 
 
-router.post('/upload', (req, res) => {
+router.post('/upload', express.urlencoded({ extended: false }), (req, res) => {
     if (!req["authorised"]) return res.sendStatus(403);
     upload(req, res, async err => {
         if (err instanceof multer.MulterError) {
@@ -42,23 +44,21 @@ router.post('/upload', (req, res) => {
             console.error(err);
             return res.status(400).send("Error uploading file");
         }
-        console.log(req.files);
+        if (req.body == undefined) return res.status(400).send("unknown error");
         if (req.files == undefined || !Array.isArray(req.files['file']))
             return res.status(400).send("No file received?");
         if (typeof req.body.name !== 'string' || req.body.name.length > 128 || req.body.name.length < 1 || typeof req.body.extension !== 'string' || req.body.extension.length > 128 || req.body.extension.length < 1)
             return res.status(400).send("Filename too long (max 128 chars) or too short");
         if (!req.body.name.match(/^([0-9]|[a-z]|-)+([0-9a-z]+)$/i) || !req.body.extension.match(/^([0-9]|[a-z])+([0-9a-z]+)$/i))
             return res.status(400).send("Filename must include only letters, numbers, or dashes");
-        console.log(req.body);
-        console.log(req.body.name);
-        console.log(req.body.extension);
-        console.log(req.files);
         const entry: typeof entries.$inferInsert = {
             id: req.body.name.toLowerCase(),
             filetype: req.body.extension.toLowerCase(),
             title: "",
             date: new Date(0),
             listed: false,
+            created: new Date(),
+            createdBy: req.user['id'],
         }
         if ((await db.select().from(entries).where(eq(entries.id, entry.id))).length > 0)
             return res.status(400).send("Entry with that filename already exists!");
@@ -83,6 +83,26 @@ router.post('/upload', (req, res) => {
         await db.insert(entries).values(entry);
         return res.sendStatus(201);
     });
+});
+
+
+router.post('/create-tag', express.json(), async (req, res) => {
+    if (!req["authorised"]) return res.sendStatus(403);
+    if (req.body == undefined) return res.status(400).send("unknown error");
+    if (typeof req.body.name !== 'string' || req.body.name.length > 32 || req.body.name.length < 1 || !Number.isInteger(req.body.type) || req.body.type < 0 || req.body.type >= TagType.Max)
+        return res.status(400).send("Name too long (max 32 chars) or too short");
+    if (!req.body.name.match(/^([0-9a-z]+)$/i))
+        return res.status(400).send("Name must include only letters and numbers");
+    const tag: typeof tags.$inferInsert = {
+        name: req.body.name,
+        type: req.body.type,
+        created: new Date(),
+        createdBy: req.user['id'],
+    }
+    if ((await db.select().from(tags).where(eq(tags.name, tag.name))).length > 0)
+        return res.status(400).send("Tag with that name already exists!");
+    await db.insert(tags).values(tag);
+    return res.sendStatus(201);
 });
 
 export default router;
