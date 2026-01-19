@@ -23,14 +23,23 @@ router.get('/e/:id', async (req, res) => {
 });
 
 const pageLimit = 10;
+const maxPageLimit = 200;
 router.get('/entries/:page', async (req, res) => {
+    console.log(req.query);
     let page = Number.parseInt(req.params.page);
     if (Number.isNaN(page) || page < 0) return res.status(400).send("invalid page number");
-    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, description: entries.description, date: entries.date, listed: entries.listed}).from(entries).orderBy(entries.date).offset(pageLimit * page).limit(pageLimit);
+    let limit = pageLimit;
+    if (typeof req.query.limit == "string") {
+        let qLimit = Number.parseInt(req.query.limit);
+        if (!Number.isNaN(qLimit))
+            limit = Math.min(maxPageLimit, Math.max(qLimit, 1));
+    }
+    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, description: entries.description, date: entries.date, listed: entries.listed}).from(entries).where(eq(entries.listed, true)).orderBy(entries.date).offset(limit * page).limit(limit);
+    let max = (await db.select({count: count()}).from(entries).where(eq(entries.listed, true)))[0].count;
     res.json({
-        from: pageLimit * page,
-        to: pageLimit * page + entry.length,
-        of: await db.select({count: count()}).from(entries),
+        from: limit * page + 1,
+        to: Math.min(max, limit * page + entry.length),
+        of: max,
         entries: entry,
     });
 });
