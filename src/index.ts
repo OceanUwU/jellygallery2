@@ -28,7 +28,7 @@ import { eq } from 'drizzle-orm';
         .set({
         date: 1,
         })
-        .where(eq(entries.id, entry.id));
+        .where(eq(entries.filename, entry.id));
     console.log('User info updated!')
 })();*/
 
@@ -55,6 +55,10 @@ app.use(passport.session());
 app.set('views', './views');
 app.locals.basedir = resolve() + '/views';
 app.set('view engine', 'pug');
+app.use((req, res, next) => {
+    req["authorised"] = req.hasOwnProperty('user') && config.authorisedUsers.includes(req.user["id"]);
+    next();
+})
 app.use(route);
 app.use('/', express.static(resolve() + '/public'));
 app.use('/file/', express.static(resolve() + '/gallery/files'));

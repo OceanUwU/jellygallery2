@@ -33,7 +33,6 @@ block content
                     a.btn.btn-success.mb-4(href="/admin/jellgall-backup.zip") Download Full Gallery Backup (#[span#backupSize=backupSize])
             h2 Entries
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Add Entry
-            button.btn.btn-secondary Edit Entry
 
             if unlisted.length > 0
                 h5.mt-4 Unlisted Entries
@@ -41,20 +40,20 @@ block content
                     each entry in unlisted
                         .card
                             .d-flex.align-items-center(style="gap: 0.2em")
-                                img.rounded-start.border-end(src="/thumb/"+entry.id+".png" style="object-fit: contain; width: 30px; height: 30px;")
-                                span.mx-1 #[b #{entry.id}]#[span.small .#{entry.filetype}]
-                                button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+                                img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
+                                span.mx-1 #[b #{entry.filename}]#[span.small .#{entry.filetype}]
+                                button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editEntry('"+entry.filename+"')") Edit
 
-            h5.mt-4 Recently Listed Entries
+            h5.mt-4 Listed Entries
             .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
                 if recent.length == 0
                     p no listed entries yet!
                 each entry in recent
                     .card
                         .d-flex.align-items-center(style="gap: 0.2em")
-                            img.rounded-start.border-end(src="/thumb/"+entry.id+".png" style="object-fit: contain; width: 40px; height: 40px;")
+                            img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
                             span.mx-1 #[b #{entry.title}]
-                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0") Edit
+                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editEntry('"+entry.filename+"')") Edit
             
             h2.mt-4 Tags
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newTagModal") Add Tag
@@ -71,15 +70,16 @@ block content
                             button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editTag("+tag.id+")") Edit
             h5.mt-4 All Tags
             p Click a tag to edit it.
-            mixin tagList(type, name)
-                span
-                    b= name
-                    = ": "
-                    != allTags.filter(t => t.t == type).map(t => '<a href="#" onclick="editTag('+t.i+');event.preventDefault();")>'+t.n+'</a>').join(', ')
-            +tagList(0, "Generic")
-            +tagList(1, "Author")
-            +tagList(2, "Character")
-            +tagList(3, "Arc")
+            .d-flex.flex-column.align-items-center#allTags
+                mixin tagList(type, name)
+                    span
+                        b= name
+                        = ": "
+                        != allTags.filter(t => t.t == type).map(t => '<a href="#" title="'+t.i+'" onclick="editTag('+t.i+');event.preventDefault();")>'+t.n+'</a>').join(', ')
+                +tagList(0, "Generic")
+                +tagList(1, "Author")
+                +tagList(2, "Character")
+                +tagList(3, "Arc")
 
             .modal.fade#uploadModal(tabindex="-1")
                 .modal-dialog
@@ -141,19 +141,71 @@ block content
                 .modal-dialog
                     .modal-content
                         .modal-header
-                            h1.modal-title.fs-5 Edit Tag
+                            h1.modal-title.fs-5 Edit Entry
                             button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
                         .modal-body
-                            p yo
-                            br
+                            img.mw-100.mh-100.d-none.border#entryEditImageDisplay
+                            audio.w-100.border.d-none#entryEditAudioPreview(controls)
+                                source#entryEditAudioPreviewSource
+                            video.border.mw-100.mh-100.d-none.mb-2#entryEditVideoDisplay(controls)
+                                source#entryEditVideoDisplaySource
+                            .border.mw-100.d-none.mb-2#entryEditFileDisplay
+                                span Filetype not recognised #[a.btn.btn-sm.btn-primary#entryEditFileDownload(target="_blank") Download file]
+                            .mb-3
+                                label.form-label(for="entryEditFilename") Filename
+                                .input-group
+                                    input.form-control#entryEditFilename(type="text" style="width: 12em")
+                                    span.input-group-text#entryEditFileExtension
+                                .form-text Be wary when changing a file's filename, as any external links to it will break.
+                            .form-check.form-switch.mb-3
+                                input.form-check-input#entryEditListed(type="checkbox")
+                                label.form-check-label(for="entryEditListed") Is this entry listed?
+                                .form-text Listed entries can be found on the gallery's entry browser page. Entries that aren't listed can still be found by those who know its filename.
+                            .mb-3
+                                label.form-label(for="entryEditTitle") Title
+                                input.form-control#entryEditTitle(type="text")
+                            .mb-3
+                                label.form-label(for="entryEditDate") Date
+                                input.form-control#entryEditDate(type="text")
+                                .form-text When was this file originally published?
+                            .mb-3
+                                label.form-label(for="entryEditDesc") Description
+                                textarea.form-control#entryEditDesc.mb-2
+                                .form-text#entryEditDescPreview
+                                hr
+                                .form-text
+                                    a(href="https://github.com/showdownjs/showdown/wiki/Showdown%27s-Markdown-syntax" target="_blank") Markdown you can use.
+                                    br
+                                    | Avoid using the largest heading as the entry's title will e displayed at this size above its description.
+                                    br
+                                    | If you want to link to a page on this site (e.g. another entry) you need not supply the entire URL e.g. [link title](/e/entryname) will take you to https://THIS.SITE/e/entryname.
+                            .mb-3
+                                label.form-label(for="entryEditTags") Tags
+                                input.form-control#entryEditTags(type="text")
+                                .form-text#editTagDisplay Selected tags will appear here. Select a tag to begin.
+                            .d-flex.flex-column#tagAdder
                             span.small.text-secondary
-                                | yo
+                                | Tags will appear to users in the order you provide, but Author tags are shown separately. For example, "Generic4,Author3,Generic2,Author1" will show up as "Tags: Generic4,Generic2" and "by Author3 and Author1".
                         .modal-footer
                             span.text-danger#editEntryErrorText
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
                             .spinner-border.text-secondary.d-none#editEntryStatus(role="status")
                             button.btn.btn-danger#deleteEntryButton(type="button") Delete
                             button.btn.btn-primary#editEntryButton(type="button") Save
+
+            .modal.fade#deleteEntryModal(tabindex="-1")
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            h1.modal-title.fs-5 Deleting Entry!
+                            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                        .modal-body
+                            span Are you sure you want to delete the entry "#[span#deleteEntryName]"? All external links to this file will be broken until another file is created with the same filename.
+                        .modal-footer
+                            span.text-danger#deleteEntryErrorText
+                            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancel
+                            .spinner-border.text-secondary.d-none#deleteEntryStatus(role="status")
+                            button.btn.btn-danger#deleteEntryConfirm(type="button") Do it!!
 
             .modal.fade.modal-lg#editTagModal(tabindex="-1")
                 .modal-dialog
@@ -196,4 +248,6 @@ block content
         
 append js
     script(src="https://unpkg.com/omggif@1.0.10/omggif.js")
-    script(src="/js/admin.js")
+    script(src="https://unpkg.com/showdown@2.1.0/dist/showdown.min.js")
+    script(src="https://unpkg.com/dompurify@3.3.1/dist/purify.min.js")
+    script(type="module" src="/js/admin.js")

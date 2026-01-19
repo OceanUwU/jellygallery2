@@ -1,7 +1,8 @@
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const entries = sqliteTable("entries", {
-  id: text().notNull().primaryKey(),
+  id: int().primaryKey({ autoIncrement: true }),
+  filename: text().notNull(),
   filetype: text().notNull(),
   title: text().notNull(),
   description: text(),
@@ -29,6 +30,7 @@ export const tags = sqliteTable("tags", {
 });
 
 export const entryTags = sqliteTable("entry_tags", {
-    entry: text().notNull().references(() => entries.id),
+    entry: int().notNull().references(() => entries.id),
     tag: int().notNull().references(() => tags.id),
+    order: int().notNull(),
 });

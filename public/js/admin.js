@@ -1,3 +1,5 @@
+import { getFileType } from "./shared.js";
+
 const entryFilePicker = document.getElementById("entryFile");
 const entryImageDisplay = document.getElementById("entryImageDisplay");
 const entryVideoDisplay = document.getElementById("entryVideoDisplay");
@@ -10,11 +12,10 @@ entryFilePicker.value = null;
 entryFilePicker.addEventListener("change", () => {
     if (entryFilePicker.files.length === 1) {
         let file = entryFilePicker.files[0];
-        console.log("File selected: ", file);
         let filename = file.name;
         let filenameParts = filename.split('.');
         let extension = '.' + filenameParts[filenameParts.length - 1].toLowerCase();
-        filename = filename.substr(0, filename.length - extension.length);
+        filename = filename.substring(0, filename.length - extension.length);
         document.getElementById("entryDetailsChoice").classList.remove("d-none");
         document.getElementById("entryDisplay").classList.add("mb-3");
         entryFilePicker.classList.add("d-none");
@@ -86,7 +87,7 @@ document.getElementById('uploadEntryButton').onclick = () => {
     //xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     let form = new FormData();
     form.append('name', document.getElementById("entryFilename").value);
-    form.append('extension', document.getElementById("entryFileExtension").innerText.substr(1));
+    form.append('extension', document.getElementById("entryFileExtension").innerText.substring(1));
     form.append('file', entryFilePicker.files[0]);
     if (!entryThumbnailDisplay.classList.contains('d-none')) {
         var byteString = atob(entryThumbnailDisplay.src.split(',')[1]);
@@ -143,11 +144,138 @@ document.getElementById('createTagButton').onclick = () => {
     xhr.send(JSON.stringify(body));
 };
 
+document.getElementById("tagAdder").innerHTML = document.getElementById("allTags").innerHTML;
+document.querySelectorAll("#tagAdder a").forEach(a => a.setAttribute("onclick", "addTag("+a.title+")"));
+
+const entryEditTags = document.getElementById("entryEditTags");
+window.addTag = (id) => {
+    if (entryEditTags.value == "" || entryEditTags.value == null)
+        entryEditTags.value = id;
+    else if (entryEditTags.value.split(',').includes(id.toString()))
+        return
+    else
+        entryEditTags.value += "," + id;
+    entryEditTags.onchange();
+}
+entryEditTags.onkeyup = entryEditTags.onchange = () => {
+    if (entryEditTags.value == '') {
+        document.getElementById("editTagDisplay").innerText = 'No tags yet! Add some by clicking the links below.';
+        return;
+    }
+    document.getElementById("editTagDisplay").innerHTML = entryEditTags.value.split(",").map(i => `<b>${i}</b>: ${document.querySelector(`#allTags a[title='${i}']`) == null ? "UNKNOWN TAG" : document.querySelector(`#allTags a[title='${i}']`).innerText}`).join(', ');
+}
+
+let editingEntry = null;
+const converter = new showdown.Converter({
+    strikethrough: true,
+    simpleLineBreaks: true,
+    tasklists: true,
+    simplifiedAutoLink: true,
+    parseImgDimension: true,
+    tables: true,
+    smoothPreview: true,
+});
+window.editEntry = async (id) => {
+    let entry = await (await fetch("/api/e/"+id)).json();
+    editingEntry = id;
+    document.getElementById('entryEditFilename').value = entry.id;
+    document.getElementById('entryEditFileExtension').innerText = "."+entry.ext;
+    document.getElementById('entryEditTitle').value = entry.title;
+    document.getElementById('entryEditListed').checked = entry.listed;
+    let dateString = new Date(entry.date).toUTCString().substring(5);
+    document.getElementById('entryEditDate').value = dateString.substring(0, 17) + dateString.substring(20);
+    document.getElementById('entryEditDesc').value = entry.description;
+    document.getElementById('entryEditDescPreview').innerHTML = DOMPurify.sanitize(converter.makeHtml(document.getElementById('entryEditDesc').value));
+    entryEditTags.value = entry.tags.map(t => t.id).join(',');
+    entryEditTags.onchange();
+    let type = getFileType(entry.ext);
+    let path = '/file/'+entry.id+"."+entry.ext;
+    document.getElementById('entryEditVideoDisplay').classList.add('d-none');
+    document.getElementById('entryEditAudioPreview').classList.add('d-none');
+    document.getElementById('entryEditImageDisplay').classList.add('d-none');
+    document.getElementById('entryEditFileDisplay').classList.add('d-none');
+    if (type == "video") {
+        document.getElementById('entryEditVideoDisplay').classList.remove('d-none');
+        document.getElementById('entryEditVideoDisplaySource').setAttribute('src', path);
+        document.getElementById('entryEditVideoDisplay').load();
+    } else if (type == "audio") {
+        document.getElementById('entryEditAudioPreview').classList.remove('d-none');
+        document.getElementById('entryEditAudioPreviewSource').setAttribute('src', path);
+        document.getElementById('entryEditAudioPreview').load();
+    } else if (type == "image") {
+        document.getElementById('entryEditImageDisplay').classList.remove('d-none');
+        document.getElementById('entryEditImageDisplay').setAttribute('src', path);
+    } else {
+        document.getElementById('entryEditFileDisplay').classList.remove('d-none');
+        document.getElementById('entryEditFileDownload').setAttribute('href', path);
+    }
+    new bootstrap.Modal(document.getElementById('editEntryModal'), {}).show();
+}
+
+document.getElementById("entryEditDesc").onkeyup = () => {
+    document.getElementById('entryEditDescPreview').innerHTML = DOMPurify.sanitize(converter.makeHtml(document.getElementById('entryEditDesc').value));
+};
+
+document.getElementById('editEntryButton').onclick = () => {
+    document.getElementById("editEntryButton").setAttribute('disabled', '');
+    document.getElementById('editEntryStatus').classList.remove('d-none');
+    document.getElementById('editEntryErrorText').innerText = '';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/admin/edit-entry", true);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    let body = {
+        oldId: editingEntry,
+        id: document.getElementById('entryEditFilename').value,
+        listed: document.getElementById('entryEditListed').checked,
+        title: document.getElementById('entryEditTitle').value,
+        date: new Date(document.getElementById('entryEditDate').value).valueOf(),
+        tags: document.getElementById('entryEditTags').value,
+        description: document.getElementById('entryEditDesc').value,
+    };
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 201) {
+            location.reload();
+        } else {
+            document.getElementById('editEntryStatus').classList.add('d-none');
+            document.getElementById('editEntryErrorText').innerText = xhr.responseText;
+            document.getElementById("editEntryButton").removeAttribute('disabled');
+        }
+    };
+    xhr.send(JSON.stringify(body));
+};
+
+document.getElementById('deleteEntryButton').onclick = async () => {
+    let entry = await (await fetch("/api/e/"+editingEntry)).json();
+    document.getElementById('deleteEntryName').innerText = entry.id+"."+entry.ext;
+    document.getElementById('editEntryModal').style.zIndex = 1050;
+    new bootstrap.Modal(document.getElementById('deleteEntryModal'), {}).show();
+};
+document.getElementById('deleteEntryModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('editEntryModal').style.zIndex = 1055;
+})
+document.getElementById('deleteEntryConfirm').onclick = async () => {
+    document.getElementById("deleteEntryConfirm").setAttribute('disabled', '');
+    document.getElementById('deleteEntryStatus').classList.remove('d-none');
+    document.getElementById('deleteEntryErrorText').innerText = '';
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/admin/delete-entry/"+editingEntry, true);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            location.reload();
+        } else {
+            document.getElementById('deleteEntryStatus').classList.add('d-none');
+            document.getElementById('deleteEntryErrorText').innerText = xhr.responseText;
+            document.getElementById("deleteEntryConfirm").removeAttribute('disabled');
+        }
+    };
+    xhr.send();
+};
+
 let editingTag = 0;
-async function editTag(id) {
+window.editTag = async (id) => {
     let tag = await (await fetch("/api/tag/"+id)).json();
     editingTag = id;
-    console.log(tag);
     document.getElementById('editTagName').value = tag.name;
     document.getElementById('editTagType').value = tag.type;
     document.getElementById('editTagDesc').value = tag.description;
@@ -232,7 +360,6 @@ document.getElementById('genBackup').onclick = async () => {
     fetch("/admin/generate-backup");
     setInterval(async () => {
         let progress = await (await fetch("/admin/backup-progress")).json();
-        console.log(progress);
         if (progress > lastProgress) {
             lastProgress = progress;
             document.getElementById('backupProgressProgress').style.width = progress + "%";

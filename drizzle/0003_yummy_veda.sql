@@ -1,0 +1,1 @@
+ALTER TABLE `entry_tags` ADD `order` integer NOT NULL;

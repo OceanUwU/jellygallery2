@@ -22,6 +22,27 @@
       "when": 1768719056746,
       "tag": "0002_marvelous_tigra",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1768753922001,
+      "tag": "0003_yummy_veda",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1768814714328,
+      "tag": "0004_eager_killraven",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1768814812844,
+      "tag": "0005_robust_hex",
+      "breakpoints": true
     }
   ]
 }
