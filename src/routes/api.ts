@@ -1,8 +1,8 @@
 
 import { Router } from 'express';
 import db from '../db';
-import { eq, desc, asc, count } from 'drizzle-orm';
-import { entries, entryTags, tags } from '../db/schema';
+import { eq, desc, asc, and, count, sql } from 'drizzle-orm';
+import { entries, entryTags, tags, TagType } from '../db/schema';
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.get('/entries/:page', async (req, res) => {
         if (!Number.isNaN(qLimit))
             limit = Math.min(maxPageLimit, Math.max(qLimit, 1));
     }
-    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, description: entries.description, date: entries.date, listed: entries.listed}).from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.date)).offset(limit * page).limit(limit);
+    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, date: entries.date, listed: entries.listed}).from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.date)).offset(limit * page).limit(limit);
     let max = (await db.select({count: count()}).from(entries).where(eq(entries.listed, true)))[0].count;
     res.json({
         from: limit * page + 1,
@@ -41,6 +41,23 @@ router.get('/entries/:page', async (req, res) => {
         of: max,
         entries: entry,
     });
+});
+
+router.get('/arc/:arc/:entry', async (req, res) => {
+    let id = Number.parseInt(req.params.arc);
+    if (Number.isNaN(id)) return res.status(400).send("id must be a number");
+    let entry = (await db.select().from(entries).where(eq(entries.filename, req.params.entry)));
+    if (entry.length == 0)
+        return res.status(400).send("entry does not exist");
+    if ((await db.select().from(tags).where(and(eq(tags.id, id), eq(tags.type, TagType.Arc)))).length == 0)
+        return res.status(400).send("arc does not exist");
+    if ((await db.select().from(entryTags).where(and(eq(entryTags.entry, entry[0].id), eq(entryTags.tag, id)))).length == 0)
+        return res.status(400).send("arc does not contain that entry");
+    res.send(await db.get(sql`SELECT * FROM (
+  SELECT filename, id, LEAD(entries.filename) OVER w AS prev, LAG(entries.filename) OVER w AS next
+  FROM entries WHERE listed = 1 AND exists (SELECT entry FROM entry_tags WHERE entry = id AND tag = ${id})
+  WINDOW w AS (ORDER BY entries.date DESC, entries.filename)
+) WHERE filename = ${req.params.entry};`));
 });
 
 export default router;

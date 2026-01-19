@@ -26,9 +26,10 @@ html.h-100
                             a.nav-link(href="/arcs" class=url.startsWith("/arcs") ? "active" : "") Arcs
                         li.nav-item
                             a.nav-link(href="/characters" class=url.startsWith("/characters") ? "active" : "") Characters
-                    form.d-flex(role="search")
-                        input.form-control.me-2(type="search" placeholder="Search" aria-label="Search")
-                        button.btn.btn-outline-light(type="submit") Search
+                    .form
+                        .input-group
+                            input.form-control(type="search" placeholder="Search" aria-label="Search" aria-describedby="searchButton")
+                            button.btn.btn-outline-light#searchButton(type="submit"): i.bi.bi-search
         main.main
             .main-inside
                 .centre-area

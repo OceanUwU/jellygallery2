@@ -61,6 +61,7 @@ app.use((req, res, next) => {
 })
 app.use(route);
 app.use('/', express.static(resolve() + '/public'));
+app.get('/js/shared.js', (req, res) => res.sendFile(resolve() + '/src/shared.ts', {headers:{"Content-Type": 'text/javascript'}}))
 app.use('/file/', express.static(resolve() + '/gallery/files'));
 app.use('/thumb/', express.static(resolve() + '/gallery/thumb'));
 

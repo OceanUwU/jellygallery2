@@ -2,6 +2,7 @@ import { Router } from 'express';
 import auth from './auth';
 import admin from './admin';
 import api from './api';
+import entry from './entry';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.get('/characters', (req, res) => res.render('characters'));
 router.use('/api/', api);
 router.use('/auth/', auth);
 router.use('/admin/', admin);
+router.use('/e/', entry);
 
 export default router;

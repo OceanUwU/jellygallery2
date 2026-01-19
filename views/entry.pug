@@ -1,0 +1,99 @@
+extends /layout
+
+block title
+    = entry.title
+
+
+block head
+    -
+        var byString = tags.filter(t => t.tags.type == 1).map(t => t.tags.name);
+        if (byString.length > 1) {
+            byString[byString.length - 2] = byString[byString.length - 2] + " & " + byString[byString.length - 1];
+            byString.splice(byString.length - 1, 1);
+        }
+        byString = "by " + byString.join(', ');
+    meta(property="og:site_name" content="Jelly G.allery")
+    meta(property="og:title" content=entry.title)
+    meta(property="og:description" content=byString)
+    meta(name="theme-color" content="#9bfff0")
+    case type
+        when 'image'
+            meta(property="og:image" content=host+"file/"+entry.filename+"."+entry.filetype)
+        when 'audio'
+            meta(property="og:audio" content=host+"file/"+entry.filename+"."+entry.filetype)
+        when 'video'
+            meta(property="og:video" content=host+"file/"+entry.filename+"."+entry.filetype)
+
+block content
+    .entry.mb-3.w-100.d-flex.justify-content-center
+        case type
+            when 'image'
+                img.mw-100.mh-100.border(src="/file/"+entry.filename+"."+entry.filetype)
+            when 'audio'
+                audio.w-100.border(controls)
+                    source#entryEditAudioPreviewSource(src="/file/"+entry.filename+"."+entry.filetype)
+            when 'video'
+                video.border.mw-100.mh-100.mb-2(controls)
+                    source#entryEditVideoDisplaySource(src="/file/"+entry.filename+"."+entry.filetype)
+            when 'file'
+                .border.mw-100.mb-2#entryEditFileDisplay
+                    a.btn.btn-sm.btn-primary#entryEditFileDownload(src="/file/"+entry.filename+"."+entry.filetype target="_blank") Download file
+    h1.text-center
+        = entry.title
+        =" "
+        -
+            var byString = tags.filter(t => t.tags.type == 1).map(t => `<a href="/entries?t=${t.tags.id}">${t.tags.name}</a>`);
+            if (byString.length > 1) {
+                byString[byString.length - 2] = byString[byString.length - 2] + " & " + byString[byString.length - 1];
+                byString.splice(byString.length - 1, 1);
+            }
+            byString = "by " + byString.join(', ');
+        span(style="font-size:0.5em")!= byString
+    .d-flex.justify-content-evenly.align-items-center(style="gap: 0.5em")
+        if adjacent.prev
+            a.btn.btn-sm.btn-outline-secondary(href="/e/"+adjacent.prev) < Prev
+        else
+            button.btn.btn-sm.btn-outline-secondary(disabled style="opacity: 30%") < Prev
+        span#date= entry.date
+        if adjacent.next
+            a.btn.btn-sm.btn-outline-secondary(href="/e/"+adjacent.next) Next >
+        else
+            button.btn.btn-sm.btn-outline-secondary(disabled style="opacity: 30%") Next >
+    if entry.description != null && entry.description.length > 0
+        hr.w-100
+        .text-center#desc= entry.description
+        hr.w-100
+    .text-center#tags
+        -
+            var tagGroups = {};
+            for (let i of tags) {
+                if (!tagGroups.hasOwnProperty(i.tags.type))
+                    tagGroups[i.tags.type] = [];
+                tagGroups[i.tags.type].push(i.tags);
+            }
+            function tagList(type) {
+                let str = '';
+                for (let i of tagGroups[type]) {
+                    if (str != '')
+                        str += ', ';
+                    str += `<a href="/entries?t=${i.id}">${i.name}</a>`;
+                }
+                return str;
+            }
+        if tagGroups.hasOwnProperty(3)
+            each arc in tagGroups[3]
+                .d-flex.justify-content-evenly.align-items-center.arc(style="gap: 0.5em" data-arc=arc.id)
+                    button.btn.btn-sm.btn-primary.prevInArc(disabled) < Prev
+                    span #[b Arc]: #{arc.name}
+                    button.btn.btn-sm.btn-primary.nextInArc(disabled) Next >
+        if tagGroups.hasOwnProperty(2)
+            span.text-center #[b Characters]: !{tagList(2)}
+        if tagGroups.hasOwnProperty(0)
+            span.text-center #[b Tags]: !{tagList(0)}
+
+append js
+    script(src="https://unpkg.com/showdown@2.1.0/dist/showdown.min.js")
+    script(src="https://unpkg.com/dompurify@3.3.1/dist/purify.min.js")
+    script.
+        const filename = "!{entry.filename}";
+    script(type="module" src="/js/entry.js")
