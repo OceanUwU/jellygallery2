@@ -99,6 +99,8 @@ router.post('/edit-entry', express.json(), async (req, res) => {
     if (newName && (await db.select().from(entries).where(eq(entries.filename, req.body.id))).length > 0)
         return res.status(400).send("Another entry with the new filename already exists!");
     let entry = entriesFound[0];
+    if (typeof req.body.title !== 'string' || req.body.title.length > 128 || req.body.title.length < 1)
+        return res.status(400).send("Title too long (max 250 chars) or too short");
     if (!req.body.title.match(/^([0-9a-z -_\.,\(\)&\/\!\?\'\"]*)$/i))
         return res.status(400).send("Title must include only letters, spaces, or the following symbols: .,&-()/!?\"");
     if (!Number.isInteger(req.body.date) || Number.isNaN(new Date(req.body.date)))
@@ -108,13 +110,15 @@ router.post('/edit-entry', express.json(), async (req, res) => {
     if (typeof req.body.tags !== 'string')
         return res.status(400).send("Invalid tags field");
     let tagsToAdd = req.body.tags == '' ? [] : req.body.tags.split(',').map(t => Number.parseInt(t));
+    tagsToAdd = tagsToAdd.filter((t, i) => tagsToAdd.indexOf(t) === i);
+    if (tagsToAdd.length == 0)
+        return res.status(400).send("Must add at least one tag.");
     for (let t of tagsToAdd) {
         let valid = !Number.isNaN(t);
         if (valid) valid = (await db.select().from(tags).where(eq(tags.id, t))).length == 1;
         if (!valid)
             return res.status(400).send("Unknown tag found: "+t);
     }
-    tagsToAdd = tagsToAdd.filter((t, i) => tagsToAdd.indexOf(t) === i);
     if (newName) {
         if (fs.existsSync(`gallery/files/${entry.filename}.${entry.filetype}`)) fs.renameSync(`gallery/files/${entry.filename}.${entry.filetype}`, `gallery/files/${req.body.id.trim()}.${entry.filetype}`);
         if (fs.existsSync(`gallery/thumb/${entry.filename}.png`)) fs.renameSync(`gallery/thumb/${entry.filename}.png`, `gallery/thumb/${req.body.id.trim()}.png`);
