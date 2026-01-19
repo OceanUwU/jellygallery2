@@ -25,7 +25,6 @@ router.get('/e/:id', async (req, res) => {
 const pageLimit = 10;
 const maxPageLimit = 200;
 router.get('/entries/:page', async (req, res) => {
-    console.log(req.query);
     let page = Number.parseInt(req.params.page);
     if (Number.isNaN(page) || page < 0) return res.status(400).send("invalid page number");
     let limit = pageLimit;

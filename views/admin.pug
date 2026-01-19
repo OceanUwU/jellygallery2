@@ -45,15 +45,30 @@ block content
                                 button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editEntry('"+entry.filename+"')") Edit
 
             h5.mt-4 Listed Entries
-            .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
-                if recent.length == 0
-                    p no listed entries yet!
-                each entry in recent
-                    .card
-                        .d-flex.align-items-center(style="gap: 0.2em")
-                            img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
-                            span.mx-1 #[b #{entry.title}]
-                            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editEntry('"+entry.filename+"')") Edit
+            .d-flex.flex-wrap.align-items-center(style="gap: 0.2em")
+                button.btn.btn-secondary.btn-sm#listedPrev(type="button" disabled) < Prev
+                span Showing #[span#listedFrom ?]-#[span#listedTo ?] of #[span#listedOf ?].
+                button.btn.btn-secondary.btn-sm#listedNext(type="button" disabled) Next >
+            table.table
+                thead
+                    tr
+                        th(scope="col") Title
+                        th(scope="col") Date
+                tbody#listedRows
+                    tr#exampleListedRow
+                        td(scope="row")
+                            button.btn.btn-sm.btn-secondary.me-2(type="button") Edit
+                            img.border.me-2(style="object-fit: contain; width: 30px; height: 30px;")
+                            span Title
+                        td Date
+            //if recent.length == 0
+            //    p no listed entries yet!
+            //each entry in recent
+            //    .card
+            //        .d-flex.align-items-center(style="gap: 0.2em")
+            //            img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
+            //            span.mx-1 #[b #{entry.title}]
+            //            button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editEntry('"+entry.filename+"')") Edit
             
             h2.mt-4 Tags
             button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#newTagModal") Add Tag

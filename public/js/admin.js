@@ -368,3 +368,34 @@ document.getElementById('genBackup').onclick = async () => {
             location.reload();
     }, 100);
 };
+
+let listedPage = 0;
+const pageLimit = 15;
+const blankRow = document.getElementById('exampleListedRow');
+blankRow.remove();
+blankRow.removeAttribute('id');
+async function loadPage(page) {
+    document.getElementById('listedPrev').setAttribute('disabled', '');
+    document.getElementById('listedNext').setAttribute('disabled', '');
+    document.get
+    let data = await (await fetch("/api/entries/" + page + "?limit=" + pageLimit)).json();
+    document.getElementById('listedRows').innerHTML = '';
+    document.getElementById('listedFrom').innerText = data.from;
+    document.getElementById('listedTo').innerText = data.to;
+    document.getElementById('listedOf').innerText = data.of;
+    if (data.from > 1)
+        document.getElementById('listedPrev').removeAttribute('disabled');
+    if (data.to < data.of)
+        document.getElementById('listedNext').removeAttribute('disabled');
+    for (let entry of data.entries) {
+        let row = blankRow.cloneNode(true);
+        row.querySelector('td span').innerText = entry.title;
+        row.querySelector('td button').setAttribute('onclick', "editEntry('"+entry.id+"')");
+        row.querySelector('td img').src = "/thumb/"+entry.id+".png";
+        row.children[1].innerHTML = new Date(entry.date).toLocaleDateString();
+        document.getElementById('listedRows').appendChild(row);
+    }
+}
+document.getElementById('listedPrev').onclick = () => loadPage(--listedPage);
+document.getElementById('listedNext').onclick = () => loadPage(++listedPage);
+loadPage(0);

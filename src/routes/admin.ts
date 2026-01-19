@@ -15,7 +15,6 @@ router.get('/', async (req, res) => res.render('admin', {
     user: req.user,
     authorised: req["authorised"],
     unlisted: await db.select().from(entries).where(eq(entries.listed, false)),
-    recent: await db.select().from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.created)).limit(3),
     recentTags: await db.select().from(tags).orderBy(desc(tags.created)).limit(5),
     allTags: await db.select({i: tags.id, n: tags.name, t: tags.type}).from(tags).orderBy(asc(tags.name)),
     backupDate: backupDone ? fs.statSync("backup.zip").mtimeMs : null,
