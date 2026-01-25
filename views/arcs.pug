@@ -5,3 +5,10 @@ block title
 
 block content
     h1 Arcs
+    each arc in arcs
+        .card.p-3.mb-3
+            h5.card-title: a(href="/entries?t="+arc.id)= arc.name
+            h6.card-subtitle.text-body.secondary=arc.description
+            p.card-text Contains #{arc.entries.length} entr#{arc.entries.length == 1 ? "y" : "ies"}.
+            span.card-text Start here:
+            a(href="/e/"+arc.entries[0].entries.filename): img.border(src="/thumb/"+arc.entries[0].entries.filename+".png")
