@@ -17,7 +17,6 @@ router.use((req, res, next) => {
 router.get('/', (req, res) => res.render('home'));
 router.get('/entries', (req, res) => res.render('entries', { tags: cached.tags }));
 router.get('/arcs', (req, res) => res.render('arcs'));
-router.get('/characters', (req, res) => res.render('characters'));
 router.get('/rss', (req, res) => res.sendFile(resolve() + '/rss.xml', {headers:{"Content-Type": 'application/xml'}}));
 router.use('/api/', api);
 router.use('/auth/', auth);

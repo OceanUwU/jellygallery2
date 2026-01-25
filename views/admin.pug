@@ -32,7 +32,7 @@ block content
                     p Last Backup: #[b#backupDate=backupDate]
                     a.btn.btn-success.mb-4(href="/admin/jellgall-backup.zip") Download Full Gallery Backup (#[span#backupSize=backupSize])
             h2 Entries
-            button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Add Entry
+            button.btn.btn-lg.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#uploadModal") Upload Entry
 
             if unlisted.length > 0
                 h5.mt-4 Unlisted Entries
@@ -205,7 +205,7 @@ block content
                                 .form-text#editTagDisplay Selected tags will appear here. Select a tag to begin.
                             .d-flex.flex-column#tagAdder
                             span.small.text-secondary
-                                | Tags will appear to users in the order you provide, but Author tags are shown separately. For example, "Generic4,Author3,Generic2,Author1" will show up as "Tags: Generic4,Generic2" and "by Author3 and Author1".
+                                | Tags will appear to users in the order you provide within their respective groups. For example, "Generic2,Author3,Generic4,Author1,Character1" will show up as "Characters: Character1", "Tags: Generic2,Generic3" and "by Author3 & Author1".
                         .modal-footer
                             span.text-danger#editEntryErrorText
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
