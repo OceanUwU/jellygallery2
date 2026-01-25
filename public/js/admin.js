@@ -79,6 +79,11 @@ entryFilePicker.addEventListener("change", () => {
 });
 
 document.getElementById('uploadEntryButton').onclick = () => {
+    let byteString, mimeString;
+    if (!entryThumbnailDisplay.classList.contains('d-none')) {
+        byteString = atob(entryThumbnailDisplay.src.split(',')[1]);
+        mimeString = entryThumbnailDisplay.src.split(',')[0].split(':')[1].split(';')[0];
+    }
     document.getElementById("uploadEntryButton").setAttribute('disabled', '');
     document.getElementById('uploadingStatus').classList.remove('d-none');
     document.getElementById('uploadErrorText').innerText = '';
@@ -90,11 +95,9 @@ document.getElementById('uploadEntryButton').onclick = () => {
     form.append('extension', document.getElementById("entryFileExtension").innerText.substring(1));
     form.append('file', entryFilePicker.files[0]);
     if (!entryThumbnailDisplay.classList.contains('d-none')) {
-        var byteString = atob(entryThumbnailDisplay.src.split(',')[1]);
-        var mimeString = entryThumbnailDisplay.src.split(',')[0].split(':')[1].split(';')[0];
-        var ab = new ArrayBuffer(byteString.length);
-        var ia = new Uint8Array(ab);
-        for (var i = 0; i < byteString.length; i++)
+        let ab = new ArrayBuffer(byteString.length);
+        let ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++)
             ia[i] = byteString.charCodeAt(i);
         form.append('thumb', new Blob([ab], {type: mimeString}));
     }
