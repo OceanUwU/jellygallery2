@@ -5,11 +5,12 @@ const blankEntry = document.getElementById('entryExample');
 blankEntry.remove();
 blankEntry.classList.remove('d-none');
 blankEntry.removeAttribute('id');
-async function loadPage(page) {
+async function loadEntries(href) {
+    document.getElementById('list').innerText = 'Loading entries...';
     document.getElementById('listedPrev').setAttribute('disabled', '');
     document.getElementById('listedNext').setAttribute('disabled', '');
-    document.get
-    let data = await (await fetch("/api/entries/" + page + "?")).json();
+    let url = new URL(href);
+    let data = await (await fetch("/api/entries" + url.search)).json();
     document.getElementById('list').innerHTML = '';
     document.getElementById('listedFrom').innerText = data.from;
     document.getElementById('listedTo').innerText = data.to;
@@ -44,6 +45,92 @@ async function loadPage(page) {
         document.getElementById('list').appendChild(row);
     }
 }
-document.getElementById('listedPrev').onclick = () => loadPage(--listedPage);
-document.getElementById('listedNext').onclick = () => loadPage(++listedPage);
-loadPage(0);
+
+function getTags() {
+    return [...document.querySelectorAll('.tag-list .btn-light')].map(b => b.getAttribute('data-id'))
+}
+
+function updateFilterCounter(tags) {
+    document.getElementById('filterCounter').innerText = tags.length;
+    document.getElementById('filterCounter').classList.add('d-none');
+    if (tags.length > 0)
+        document.getElementById('filterCounter').classList.remove('d-none');
+}
+
+async function toggleTag(id) {
+    let button = document.querySelector('.tag-list button[data-id="'+id+'"]');
+    if (button == null) {
+        return;
+    }
+    let enabled = button.classList.contains('btn-light');
+    button.classList.remove('btn-light');
+    button.classList.remove('btn-outline-secondary');
+    enabled = !enabled;
+    button.classList.add(enabled ? 'btn-light' : 'btn-outline-secondary');
+    let tags = getTags();
+    let url = new URL(location.href);
+    updateFilterCounter(tags);
+    if (tags.length > 0)
+        url.searchParams.set('t', tags.join('-'));
+    else
+        url.searchParams.delete('t');
+    url.searchParams.delete('p');
+    history.replaceState({path:url.href},'',url.href);
+}
+
+let liveSearchChangeNum = 0;
+document.getElementById('liveSearch').onkeyup = event => {
+    let changeNum = ++liveSearchChangeNum;
+    setTimeout(() => {
+        if (changeNum != liveSearchChangeNum) return;
+        let url = new URL(location.href);
+        if (event.target.value.trim().length <= 0) {
+            if (url.searchParams.has('q')) {
+                url.searchParams.delete('q');
+                history.replaceState({path:url.href},'',url.href);
+            }
+        } else if (event.target.value.trim() != url.searchParams.get('q')) {
+            url.searchParams.set('q', event.target.value.trim());
+            history.replaceState({path:url.href},'',url.href);
+        } 
+    }, 250);
+}
+
+navigation.addEventListener("navigate", (event) => {
+    loadEntries(event.destination.url);
+})
+
+function incrementPage(by) {
+    let url = new URL(location.href);
+    let page = Number.parseInt(url.searchParams.get('p') ?? 1);
+    url.searchParams.set('p', page + by);
+    if (page + by == 1)
+        url.searchParams.delete('p');
+    history.replaceState({path:url.href},'',url.href);
+}
+
+document.getElementById('listedPrev').onclick = () => incrementPage(-1);
+document.getElementById('listedNext').onclick = () => incrementPage(1);
+
+addEventListener('load', () => {
+    let origURL = new URL(location.href)
+    let t = origURL.searchParams.get('t');
+    let origTags = t == null ? [] : t.split('-');
+    for (let tagGroup of document.querySelectorAll('.tag-list')) {
+        let tagType = tagGroup.getAttribute('data-type');
+        for (let button of tagGroup.querySelectorAll('button')) {
+            let id = button.getAttribute('data-id');
+            button.onclick = () => toggleTag(id);
+            if (origTags.includes(id)) {
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-light');
+            }
+        }
+    }
+    origTags = getTags();
+    updateFilterCounter(origTags);
+    document.getElementById('liveSearch').value = origURL.searchParams.get('q');
+    if (origTags.length > 0 || document.getElementById('liveSearch').value != '')
+        new bootstrap.Collapse(document.getElementById('filters'))
+    loadEntries(origURL.href);
+});

@@ -370,15 +370,14 @@ document.getElementById('genBackup').onclick = async () => {
 };
 
 let listedPage = 0;
-const pageLimit = 15;
+const pageLimit = 10;
 const blankRow = document.getElementById('exampleListedRow');
 blankRow.remove();
 blankRow.removeAttribute('id');
 async function loadPage(page) {
     document.getElementById('listedPrev').setAttribute('disabled', '');
     document.getElementById('listedNext').setAttribute('disabled', '');
-    document.get
-    let data = await (await fetch("/api/entries/" + page + "?limit=" + pageLimit)).json();
+    let data = await (await fetch("/api/entries?page=" + page + "&limit=" + pageLimit + (search == null ? '' : '&q='+search))).json();
     document.getElementById('listedRows').innerHTML = '';
     document.getElementById('listedFrom').innerText = data.from;
     document.getElementById('listedTo').innerText = data.to;
@@ -398,4 +397,26 @@ async function loadPage(page) {
 }
 document.getElementById('listedPrev').onclick = () => loadPage(--listedPage);
 document.getElementById('listedNext').onclick = () => loadPage(++listedPage);
+document.getElementById('titleSearch').value = null;
+let liveSearchChangeNum = 0;
+let search = null;
+document.getElementById('titleSearch').onkeyup = event => {
+    let changeNum = ++liveSearchChangeNum;
+    setTimeout(() => {
+        if (changeNum != liveSearchChangeNum) return;
+        let url = new URL(location.href);
+        if (event.target.value.trim().length <= 0) {
+            if (search != null) {
+                search = null;
+                listedPage = 0;
+                loadPage(listedPage);
+            }
+        } else if (event.target.value.trim() != url.searchParams.get('q')) {
+            search = event.target.value.trim();
+            listedPage = 0;
+            loadPage(listedPage);
+        } 
+    }, 250);
+}
+
 loadPage(0);

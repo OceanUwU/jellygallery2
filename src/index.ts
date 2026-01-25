@@ -6,6 +6,7 @@ import expressSession from 'express-session';
 import SQLiteStore from 'connect-sqlite3';
 import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
+import { refreshAll } from './cached';
 
 /*
 import db from './db';
@@ -32,7 +33,7 @@ import { eq } from 'drizzle-orm';
     console.log('User info updated!')
 })();*/
 
-
+refreshAll();
 const app = express();
 app.use(expressSession({
     store: new new SQLiteStore(expressSession)({ db: "sessions.db" }),

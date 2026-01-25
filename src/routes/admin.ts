@@ -8,6 +8,7 @@ import { eq, desc, asc } from 'drizzle-orm';
 import sharp from 'sharp';
 import JSZip from 'jszip';
 import { resolve } from 'path';
+import { refreshAll, refreshTags } from '../cached';
 
 const router = Router();
 
@@ -101,7 +102,7 @@ router.post('/edit-entry', express.json(), async (req, res) => {
     if (typeof req.body.title !== 'string' || req.body.title.length > 128 || req.body.title.length < 1)
         return res.status(400).send("Title too long (max 250 chars) or too short");
     if (!req.body.title.match(/^([0-9a-z -_\.,\(\)&\/\!\?\'\"]*)$/i))
-        return res.status(400).send("Title must include only letters, spaces, or the following symbols: .,&-()/!?\"");
+        return res.status(400).send("Title must include only letters, spaces, or the following symbols: .,&-()/!?\'\"");
     if (!Number.isInteger(req.body.date) || Number.isNaN(new Date(req.body.date)))
         return res.status(400).send("Invalid date");
     if (typeof req.body.description !== 'string' || req.body.description.length > 4000)
@@ -138,6 +139,7 @@ router.post('/edit-entry', express.json(), async (req, res) => {
             tag: tagsToAdd[i],
         });
     }
+    await refreshAll();
     return res.sendStatus(201);
 });
 
@@ -151,6 +153,7 @@ router.post('/delete-entry/:id', express.json(), async (req, res) => {
     if (fs.existsSync(`gallery/ogThumb/${e.filename}.png`)) fs.rmSync(`gallery/ogThumb/${e.filename}.png`);
     await db.delete(entries).where(eq(entries.id, e.id));
     await db.delete(entryTags).where(eq(entryTags.entry, e.id));
+    await refreshAll();
     return res.sendStatus(200);
 });
 
@@ -171,6 +174,7 @@ router.post('/create-tag', express.json(), async (req, res) => {
     if ((await db.select().from(tags).where(eq(tags.name, tag.name))).length > 0)
         return res.status(400).send("Tag with that name already exists!");
     await db.insert(tags).values(tag);
+    await refreshAll();
     return res.sendStatus(201);
 });
 
@@ -189,6 +193,7 @@ router.post('/edit-tag', express.json(), async (req, res) => {
         type: req.body.type,
         description: req.body.description == '' ? null : req.body.description,
     }).where(eq(tags.id, req.body.id));
+    await refreshAll();
     return res.sendStatus(201);
 });
 
@@ -198,6 +203,7 @@ router.post('/delete-tag/:id', express.json(), async (req, res) => {
     if (Number.isNaN(id)) return res.status(400).send("id must be a number");
     await db.delete(tags).where(eq(tags.id, id));
     await db.delete(entryTags).where(eq(entryTags.tag, id));
+    await refreshAll();
     return res.sendStatus(200);
 });
 

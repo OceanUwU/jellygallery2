@@ -28,7 +28,7 @@ html.h-100
                             a.nav-link(href="/characters" class=url.startsWith("/characters") ? "active" : "") Characters
                     .form
                         .input-group
-                            input.form-control(type="search" placeholder="Search" aria-label="Search" aria-describedby="searchButton")
+                            input.form-control#searchBox(type="search" placeholder="Search" aria-label="Search" aria-describedby="searchButton" maxlength=25)
                             button.btn.btn-outline-light#searchButton(type="submit"): i.bi.bi-search
         main.main
             .main-inside

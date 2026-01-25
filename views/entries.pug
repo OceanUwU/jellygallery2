@@ -5,13 +5,27 @@ block title
 
 block content
     h1 Entries
-    button.btn.btn-dark.btn-sm(type="button" data-bs-toggle="collapse" data-bs-target="#filters" aria-expanded="false" aria-controls="filters") Filters
+    button.btn.btn-dark.btn-sm(type="button" data-bs-toggle="collapse" data-bs-target="#filters" aria-expanded="false" aria-controls="filters")
+        | Filters #[span.badge.text-bg-light.d-none#filterCounter 0]
     .collapse#filters
         .card.text-bg-dark
             .card-body
-                .card-title.text-center Characters
-                .card-title.text-center Authors
-                .card-title.text-center Tags
+                mixin tag(t)
+                    button.btn.btn-sm.btn-outline-secondary(data-id=t.id)
+                        =t.name
+                        =" "
+                        span.badge.text-bg-secondary= t.count
+                mixin tagList(typ, title, hidden)
+                    .card-title.text-center.mb-0(data-type=typ class=hidden ? "d-none" : "")= title
+                    .tag-list(data-type=typ class=hidden ? "d-none" : "")
+                        if tags.hasOwnProperty(typ)
+                            each t in tags[typ]
+                                +tag(t)
+                input.form-control.mb-3#liveSearch(placeholder="Title" maxlength=25)
+                +tagList(3, "Arc", true)
+                +tagList(2, "Character", false)
+                +tagList(1, "Author", false)
+                +tagList(0, "Tag", false)
     #list.mb-4
         a.entry.d-none#entryExample
             img
@@ -24,11 +38,11 @@ block content
             span.typeHint.gifHint
                 | GIF
                 i.bi.bi-play-fill
-        p.lead Loading entries...
+        | Loading script...
     .d-flex.flex-wrap.align-items-center(style="gap: 0.2em")
-        button.btn.btn-secondary.btn-sm#listedPrev(type="button" disabled) < Prev
+        button.btn.btn-secondary.btn-sm#listedPrev(type="button" disabled) < Newer
         span Showing #[span#listedFrom ?]-#[span#listedTo ?] of #[span#listedOf ?].
-        button.btn.btn-secondary.btn-sm#listedNext(type="button" disabled) Next >
+        button.btn.btn-secondary.btn-sm#listedNext(type="button" disabled) Older >
 
 append css
     link(href="/css/entries.css" rel="stylesheet")

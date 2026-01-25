@@ -43,9 +43,11 @@ block content
                                 img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
                                 span.mx-1 #[b #{entry.filename}]#[span.small .#{entry.filetype}]
                                 button.btn.btn-sm.btn-secondary.h-100.border-start(type="button" style="border-top-left-radius:0; border-bottom-left-radius:0" onclick="editEntry('"+entry.filename+"')") Edit
-
-            h5.mt-4 Listed Entries
-            .d-flex.flex-wrap.align-items-center(style="gap: 0.2em")
+                h5.mt-4 Listed Entries
+            else
+                .mb-3
+            input.form-control.mb-2#titleSearch(placeholder="Search by title..." style="max-width:20em")
+            .d-flex.flex-wrap.align-items-center.mb-2(style="gap: 0.2em")
                 button.btn.btn-secondary.btn-sm#listedPrev(type="button" disabled) < Prev
                 span Showing #[span#listedFrom ?]-#[span#listedTo ?] of #[span#listedOf ?].
                 button.btn.btn-secondary.btn-sm#listedNext(type="button" disabled) Next >
