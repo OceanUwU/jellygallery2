@@ -151,8 +151,8 @@ router.post('/delete-entry/:id', express.json(), async (req, res) => {
     if (fs.existsSync(`gallery/files/${e.filename}.${e.filetype}`)) fs.rmSync(`gallery/files/${e.filename}.${e.filetype}`);
     if (fs.existsSync(`gallery/thumb/${e.filename}.png`)) fs.rmSync(`gallery/thumb/${e.filename}.png`);
     if (fs.existsSync(`gallery/ogThumb/${e.filename}.png`)) fs.rmSync(`gallery/ogThumb/${e.filename}.png`);
-    await db.delete(entries).where(eq(entries.id, e.id));
     await db.delete(entryTags).where(eq(entryTags.entry, e.id));
+    await db.delete(entries).where(eq(entries.id, e.id));
     await refreshAll();
     return res.sendStatus(200);
 });
@@ -203,8 +203,8 @@ router.post('/delete-tag/:id', express.json(), async (req, res) => {
     if (!req["authorised"]) return res.sendStatus(403);
     let id = Number.parseInt(req.params.id);
     if (Number.isNaN(id)) return res.status(400).send("id must be a number");
-    await db.delete(tags).where(eq(tags.id, id));
     await db.delete(entryTags).where(eq(entryTags.tag, id));
+    await db.delete(tags).where(eq(tags.id, id));
     await refreshTags();
     await refreshArcs();
     return res.sendStatus(200);
