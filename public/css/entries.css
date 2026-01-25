@@ -120,3 +120,7 @@
         outline-offset: 10px;
     }
 }
+
+#liveSearch::placeholder {
+    color: #9b9b9b;
+}

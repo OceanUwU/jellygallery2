@@ -51,9 +51,11 @@ function getTags() {
 }
 
 function updateFilterCounter(tags) {
-    document.getElementById('filterCounter').innerText = tags.length;
+    let count = tags.length;
+    if (document.getElementById('liveSearch').value != null && document.getElementById('liveSearch').value.trim().length > 0) count++;
+    document.getElementById('filterCounter').innerText = count;
     document.getElementById('filterCounter').classList.add('d-none');
-    if (tags.length > 0)
+    if (count > 0)
         document.getElementById('filterCounter').classList.remove('d-none');
 }
 
@@ -87,10 +89,12 @@ document.getElementById('liveSearch').onkeyup = event => {
         if (event.target.value.trim().length <= 0) {
             if (url.searchParams.has('q')) {
                 url.searchParams.delete('q');
+                updateFilterCounter(getTags());
                 history.replaceState({path:url.href},'',url.href);
             }
         } else if (event.target.value.trim() != url.searchParams.get('q')) {
             url.searchParams.set('q', event.target.value.trim());
+            updateFilterCounter(getTags());
             history.replaceState({path:url.href},'',url.href);
         } 
     }, 250);
@@ -142,10 +146,10 @@ addEventListener('load', async () => {
         }
     }
     origTags = getTags();
-    updateFilterCounter(origTags);
     document.getElementById('liveSearch').value = origURL.searchParams.get('q');
     if (origTags.length > 0 || document.getElementById('liveSearch').value != '')
         new bootstrap.Collapse(document.getElementById('filters'))
     document.querySelectorAll('[data-bs-title]').forEach(p => new bootstrap.Popover(p, {trigger: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'hover focus' : 'hover', placement: 'bottom'}));
+    updateFilterCounter(origTags);
     loadEntries(origURL.href);
 });

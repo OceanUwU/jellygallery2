@@ -22,7 +22,7 @@ block content
                         if tags.hasOwnProperty(typ)
                             each t in tags[typ]
                                 +tag(t)
-                input.form-control.mb-3#liveSearch(placeholder="Title" maxlength=25)
+                input.form-control.form-control-sm.bg-dark.text-light.mb-3#liveSearch(placeholder="Title" maxlength=25)
                 +tagList(3, "Arc", true)
                 +tagList(2, "Character", false)
                 +tagList(1, "Author", false)
