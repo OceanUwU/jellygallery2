@@ -17,12 +17,12 @@ block content
                         =" "
                         span.badge.text-bg-secondary= t.count
                 mixin tagList(typ, title, hidden)
-                    .card-title.text-center.mb-0(data-type=typ class=hidden ? "d-none" : "")= title
+                    .card-title.text-center.mb-0.mt-2(data-type=typ class=hidden ? "d-none" : "")= title
                     .tag-list(data-type=typ class=hidden ? "d-none" : "")
                         if tags.hasOwnProperty(typ)
                             each t in tags[typ]
                                 +tag(t)
-                input.form-control.form-control-sm.bg-dark.text-light.mb-3#liveSearch(placeholder="Title" maxlength=25)
+                input.form-control.form-control-sm.bg-dark.text-light.mb-2#liveSearch(placeholder="Title" maxlength=25)
                 +tagList(3, "Arc", true)
                 +tagList(2, "Character", false)
                 +tagList(1, "Author", false)
