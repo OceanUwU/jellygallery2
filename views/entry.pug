@@ -35,10 +35,18 @@ block head
     meta(name="theme-color" content="#9bfff0")
     case type
         when 'image'
+            meta(property="twitter:card" content="summary_large_image")
+            meta(property="twitter:image:src" content=host+"file/"+entry.filename+"."+entry.filetype)
             meta(property="og:image" content=host+"file/"+entry.filename+"."+entry.filetype)
         when 'audio'
+            meta(property="twitter:card" content="summary_large_image")
+            meta(property="og.type" content="audio")
+            meta(property="twitter:player:stream" content=host+"file/"+entry.filename+"."+entry.filetype)
             meta(property="og:audio" content=host+"file/"+entry.filename+"."+entry.filetype)
         when 'video'
+            meta(property="twitter:card" content="summary_large_image")
+            meta(property="og.type" content="video.movie")
+            meta(property="twitter:player:stream" content=host+"file/"+entry.filename+"."+entry.filetype)
             meta(property="og:video" content=host+"file/"+entry.filename+"."+entry.filetype)
 
 block content
@@ -91,3 +99,6 @@ append js
     script.
         const filename = "!{entry.filename}";
     script(type="module" src="/js/entry.js")
+
+append css
+    link(href="/css/entry.css" rel="stylesheet")
