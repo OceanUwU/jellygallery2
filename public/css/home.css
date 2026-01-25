@@ -1,0 +1,42 @@
+#present {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#enter {
+    filter: invert(0%);
+}
+
+@media (max-width: 1199.98px) {
+    #present {
+        scale: 0.9
+    }
+}
+
+@media (max-width: 991.98px) {
+    #present {
+        scale: 0.8
+    }
+}
+
+@media (max-width: 767.98px) {
+    #present {
+        scale: 0.7
+    }
+}
+
+@media (max-width: 575.98px) {
+    #present {
+        scale: 0.6
+    }
+}
+
+#enter:hover {
+    filter: invert(100%);
+    transition: 0.2s all ease-out;
+}
+
+.eml > span:nth-child(2n) {
+	display: none;
+}

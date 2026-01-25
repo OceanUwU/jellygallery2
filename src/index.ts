@@ -8,31 +8,6 @@ import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
 import { refreshAll } from './cached';
 
-/*
-import db from './db';
-import { entries } from './db/schema';
-import { eq } from 'drizzle-orm';
-
-(async () => {
-    const entry: typeof entries.$inferInsert = {
-        id: "test",
-        filetype: "png",
-        title: "Test",
-        date: 0,
-    }
-
-    await db.insert(entries).values(entry);
-
-    const users = await db.select().from(entries);
-    console.log('Getting all users from the database: ', users);
-    await db.update(entries)
-        .set({
-        date: 1,
-        })
-        .where(eq(entries.filename, entry.id));
-    console.log('User info updated!')
-})();*/
-
 refreshAll();
 const app = express();
 app.use(expressSession({
