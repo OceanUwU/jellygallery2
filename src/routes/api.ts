@@ -37,7 +37,7 @@ router.get('/entries', async (req, res) => {
     let search = null;
     if (typeof req.query.q == "string")
         search = req.query.q;
-    if (search.length == 0)
+    if (search != null && search.length == 0)
         search = null;
     if (search != null && search.length > 25) return res.status(400).send("search query too long (max 25 chars)");
     let limit = pageLimit;

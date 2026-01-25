@@ -132,5 +132,6 @@ addEventListener('load', () => {
     document.getElementById('liveSearch').value = origURL.searchParams.get('q');
     if (origTags.length > 0 || document.getElementById('liveSearch').value != '')
         new bootstrap.Collapse(document.getElementById('filters'))
+    document.querySelectorAll('[data-bs-title]').forEach(p => new bootstrap.Popover(p, {trigger: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'hover focus' : 'hover', placement: 'bottom'}));
     loadEntries(origURL.href);
 });

@@ -13,7 +13,7 @@ export async function refreshAll() {
 }
 
 export async function refreshTags() {
-    let cachedTags: Array<any> = await db.select({ id: tags.id, name: tags.name, type: tags.type }).from(tags).where(ne(tags.type, TagType.Arc));
+    let cachedTags: Array<any> = await db.select({ id: tags.id, name: tags.name, type: tags.type, description: tags.description }).from(tags).where(ne(tags.type, TagType.Arc));
     for (let tag of cachedTags)
         tag.count = (await db.select({count: count()}).from(entryTags).leftJoin(entries, eq(entries.id, entryTags.entry)).where(and(eq(entryTags.tag, tag.id), eq(entries.listed, true))))[0].count;
     cachedTags = cachedTags.filter(t => t.count > 0);

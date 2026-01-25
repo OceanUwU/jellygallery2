@@ -173,7 +173,10 @@ block content
                                 .input-group
                                     input.form-control#entryEditFilename(type="text" style="width: 12em")
                                     span.input-group-text#entryEditFileExtension
-                                .form-text Be wary when changing a file's filename, as any external links to it will break.
+                                .form-text
+                                    | Be wary when changing an entry's filename, as any external links to it will break.
+                                    br
+                                    | Filenames must be unique. Extension is not taken into account, for example a file named "jelly.png" and "jelly.mp4" cannot both exist.
                             .form-check.form-switch.mb-3
                                 input.form-check-input#entryEditListed(type="checkbox")
                                 label.form-check-label(for="entryEditListed") Is this entry listed?
@@ -241,7 +244,7 @@ block content
                             textarea.form-control.w-100#editTagDesc(placeholder="Description")
                             br
                             span.small.text-secondary
-                                | Tag descriptions should be short (one or two lines) since multiple of them will be shown at once. Descriptions cannot have formatting.
+                                | Tag descriptions should be short (one or two lines) since they are shown as a popover on the filter buttons in the entries page. Unlike entries, tags' descriptions cannot have formatting.
                         .modal-footer
                             span.text-danger#editTagErrorText
                             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close

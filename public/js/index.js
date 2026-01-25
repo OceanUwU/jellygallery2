@@ -7,3 +7,6 @@ document.getElementById('searchButton').onclick = () => {
         url.searchParams.set('q', search.trim());
     location.href = url.href;
 };
+document.getElementById('searchBox').onkeydown = event => {
+    if (event.key == "Enter") document.getElementById('searchButton').onclick();
+}
