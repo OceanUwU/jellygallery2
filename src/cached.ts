@@ -1,7 +1,10 @@
 
 import db from './db';
-import { eq, ne, desc, asc, and, count, sql } from 'drizzle-orm';
+import { eq, ne, and, desc, count } from 'drizzle-orm';
 import { entries, entryTags, tags, TagType } from './db/schema';
+import config from './config';
+import pug from 'pug';
+import fs from 'fs';
 
 const cached = {
     tags: {},
@@ -10,6 +13,7 @@ const cached = {
 export async function refreshAll() {
     await refreshTags();
     await refreshArcs();
+    await generateRSS();
 }
 
 export async function refreshTags() {
@@ -30,6 +34,15 @@ export async function refreshTags() {
 
 export async function refreshArcs() {
 
+}
+
+const rssTemplate = pug.compileFile('views/rss.pug');
+export async function generateRSS() {
+    fs.writeFileSync('rss.xml', rssTemplate({
+        host: config.host,
+        entries: await Promise.all((await db.select().from(entries).where(eq(entries.listed, true)).orderBy(desc(entries.date)).limit(50)).map(async e => ({...e,
+            authors: await db.select({id: entryTags.tag, type: tags.type, name: tags.name}).from(entryTags).where(and(eq(tags.type, TagType.Author), eq(entryTags.entry, e.id))).orderBy(entryTags.order).leftJoin(tags, eq(tags.id, entryTags.tag))}))),
+    }));
 }
 
 export default cached;

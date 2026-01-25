@@ -1,0 +1,31 @@
+doctype xml
+rss(version="2.0" xmlns:atom="http://www.w3.org/2005/Atom")
+    channel
+        link= host
+        atom:link(href=host + "rss" rel="self" type="application/rss+xml")
+        title Jelly G.allery
+        description All the latest entries to the Jelly G.allery
+        language en-us
+        lastBuildDate= new Date().toUTCString()
+        docs https://www.rssboard.org/rss-specification
+        generator Pug
+        image
+            url= host + "img/icon.png"
+            title Jelly G.allery
+            link= host
+        each entry in entries
+            item
+                guid(isPermaLink="false")= entry.filename
+                title= entry.title
+                link= host + "e/" + entry.filename
+                -
+                    var byString = entry.authors.map(t => t.name);
+                    if (byString.length > 1) {
+                        byString[byString.length - 2] = byString[byString.length - 2] + " & " + byString[byString.length - 1];
+                        byString.splice(byString.length - 1, 1);
+                    } else if (byString.length == 0) {
+                        byString = ['???'];
+                    }
+                    byString = "by " + byString.join(', ');
+                description= byString
+                pubDate= entry.date.toUTCString()

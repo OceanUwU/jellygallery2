@@ -8,7 +8,7 @@ import { eq, desc, asc } from 'drizzle-orm';
 import sharp from 'sharp';
 import JSZip from 'jszip';
 import { resolve } from 'path';
-import { refreshAll, refreshTags } from '../cached';
+import { refreshAll, refreshArcs, refreshTags } from '../cached';
 
 const router = Router();
 
@@ -174,7 +174,8 @@ router.post('/create-tag', express.json(), async (req, res) => {
     if ((await db.select().from(tags).where(eq(tags.name, tag.name))).length > 0)
         return res.status(400).send("Tag with that name already exists!");
     await db.insert(tags).values(tag);
-    await refreshAll();
+    await refreshTags();
+    await refreshArcs();
     return res.sendStatus(201);
 });
 
@@ -193,7 +194,8 @@ router.post('/edit-tag', express.json(), async (req, res) => {
         type: req.body.type,
         description: req.body.description == '' ? null : req.body.description,
     }).where(eq(tags.id, req.body.id));
-    await refreshAll();
+    await refreshTags();
+    await refreshArcs();
     return res.sendStatus(201);
 });
 
@@ -203,7 +205,8 @@ router.post('/delete-tag/:id', express.json(), async (req, res) => {
     if (Number.isNaN(id)) return res.status(400).send("id must be a number");
     await db.delete(tags).where(eq(tags.id, id));
     await db.delete(entryTags).where(eq(entryTags.tag, id));
-    await refreshAll();
+    await refreshTags();
+    await refreshArcs();
     return res.sendStatus(200);
 });
 

@@ -101,6 +101,7 @@ document.getElementById('liveSearch').onkeyup = event => {
 }
 
 navigation.addEventListener("navigate", (event) => {
+    if (!new URL(event.destination.url).pathname.startsWith('/entries')) return;
     loadEntries(event.destination.url);
 })
 

@@ -4,6 +4,7 @@ import admin from './admin';
 import api from './api';
 import entry from './entry';
 import cached from '../cached';
+import { resolve } from 'path';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.get('/', (req, res) => res.render('home'));
 router.get('/entries', (req, res) => res.render('entries', { tags: cached.tags }));
 router.get('/arcs', (req, res) => res.render('arcs'));
 router.get('/characters', (req, res) => res.render('characters'));
+router.get('/rss', (req, res) => res.sendFile(resolve() + '/rss.xml', {headers:{"Content-Type": 'application/xml'}}));
 router.use('/api/', api);
 router.use('/auth/', auth);
 router.use('/admin/', admin);
