@@ -24,8 +24,8 @@ html.h-100
                             a.nav-link(href="/entries" class=url.startsWith("/entries") ? "active" : "") Entries
                         li.nav-item
                             a.nav-link(href="/arcs" class=url.startsWith("/arcs") ? "active" : "") Arcs
-                        li.nav-item
-                            a.nav-link(href="/characters" class=url.startsWith("/characters") ? "active" : "") Characters
+                        //-li.nav-item
+                        //-    a.nav-link(href="/characters" class=url.startsWith("/characters") ? "active" : "") Characters
                     .form
                         .input-group
                             input.form-control#searchBox(type="search" placeholder="Search" aria-label="Search" aria-describedby="searchButton" maxlength=25)
@@ -37,7 +37,7 @@ html.h-100
                         block content
         footer.footer.mt-auto.py-2
             .container.d-flex.justify-content-around.text-center
-                div: span.nav-link #[b The Jelly G.allery] by ocean
+                div: a.nav-link(href="/rss") RSS
                 div: a.nav-link(href="https://github.com/oceanuwu/jellygallery2") GitHub
                 div: a.nav-link(href="/admin") Admin
         block js
