@@ -118,9 +118,7 @@ addEventListener('load', async () => {
     let origTags = t == null ? [] : t.split('-');
     for (let tag of origTags) {
         if (document.querySelector('.tag-list button[data-id="'+tag+'"]') != null) continue;
-        console.log(tag);
         let data = await (await fetch("/api/tag/" + tag)).json();
-        console.log(data);
         let elem = document.getElementById('exampleTag').cloneNode();
         elem.classList.remove('d-none');
         elem.innerText = data.name;

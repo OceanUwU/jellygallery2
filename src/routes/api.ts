@@ -51,7 +51,7 @@ router.get('/entries', async (req, res) => {
         condition = and(exists(db.select().from(entryTags).where(and(eq(entryTags.entry, entries.id), eq(entryTags.tag, tag)))), condition);
     if (search != null)
         condition = and(like(entries.title, "%"+search+"%"), condition)
-    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, date: entries.date, listed: entries.listed}).from(entries).where(condition).orderBy(desc(entries.date)).offset(limit * page).limit(limit);
+    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, date: entries.date}).from(entries).where(condition).orderBy(desc(entries.date)).offset(limit * page).limit(limit);
     let max = (await db.select({count: count()}).from(entries).where(condition))[0].count;
     res.json({
         from: limit * page + 1,
