@@ -10,6 +10,7 @@ block content
     .collapse#filters
         .card.text-bg-dark
             .card-body
+                button.d-none.btn.btn-sm.btn-outline-secondary#exampleTag
                 mixin tag(t)
                     button.btn.btn-sm.btn-outline-secondary(data-id=t.id data-bs-title=t.description)
                         =t.name

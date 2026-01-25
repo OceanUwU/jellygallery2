@@ -112,10 +112,26 @@ function incrementPage(by) {
 document.getElementById('listedPrev').onclick = () => incrementPage(-1);
 document.getElementById('listedNext').onclick = () => incrementPage(1);
 
-addEventListener('load', () => {
+addEventListener('load', async () => {
     let origURL = new URL(location.href)
     let t = origURL.searchParams.get('t');
     let origTags = t == null ? [] : t.split('-');
+    for (let tag of origTags) {
+        if (document.querySelector('.tag-list button[data-id="'+tag+'"]') != null) continue;
+        console.log(tag);
+        let data = await (await fetch("/api/tag/" + tag)).json();
+        console.log(data);
+        let elem = document.getElementById('exampleTag').cloneNode();
+        elem.classList.remove('d-none');
+        elem.innerText = data.name;
+        elem.setAttribute('data-id', data.id);
+        if (data.description != null)
+            elem.setAttribute('data-bs-title', data.description);
+        let tagList = document.querySelector('.tag-list[data-type="'+data.type+'"]');
+        tagList.appendChild(elem);
+        tagList.classList.remove('d-none');
+        document.querySelector('.card-title[data-type="'+data.type+'"]').classList.remove('d-none');
+    }
     for (let tagGroup of document.querySelectorAll('.tag-list')) {
         let tagType = tagGroup.getAttribute('data-type');
         for (let button of tagGroup.querySelectorAll('button')) {
