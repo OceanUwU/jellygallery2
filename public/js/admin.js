@@ -373,14 +373,14 @@ document.getElementById('genBackup').onclick = async () => {
 };
 
 let listedPage = 0;
-const pageLimit = 10;
+const pageLimit = 3;
 const blankRow = document.getElementById('exampleListedRow');
 blankRow.remove();
 blankRow.removeAttribute('id');
 async function loadPage(page) {
     document.getElementById('listedPrev').setAttribute('disabled', '');
     document.getElementById('listedNext').setAttribute('disabled', '');
-    let data = await (await fetch("/api/entries?page=" + page + "&limit=" + pageLimit + (search == null ? '' : '&q='+search))).json();
+    let data = await (await fetch("/api/entries?p=" + page + "&limit=" + pageLimit + (search == null ? '' : '&q='+search))).json();
     document.getElementById('listedRows').innerHTML = '';
     document.getElementById('listedFrom').innerText = data.from;
     document.getElementById('listedTo').innerText = data.to;
