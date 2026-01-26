@@ -373,7 +373,7 @@ document.getElementById('genBackup').onclick = async () => {
 };
 
 let listedPage = 0;
-const pageLimit = 3;
+const pageLimit = 10;
 const blankRow = document.getElementById('exampleListedRow');
 blankRow.remove();
 blankRow.removeAttribute('id');
