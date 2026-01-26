@@ -10,6 +10,8 @@ async function loadEntries(href) {
     document.getElementById('listedPrev').setAttribute('disabled', '');
     document.getElementById('listedNext').setAttribute('disabled', '');
     let url = new URL(href);
+    if (url.searchParams.has('p'))
+        url.searchParams.set('p', Number.parseInt(url.searchParams.get('p')) - 1);
     let data = await (await fetch("/api/entries" + url.search)).json();
     document.getElementById('list').innerHTML = '';
     document.getElementById('listedFrom').innerText = data.from;
