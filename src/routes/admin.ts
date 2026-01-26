@@ -99,7 +99,7 @@ router.post('/edit-entry', express.json(), async (req, res) => {
     if (newName && (await db.select().from(entries).where(eq(entries.filename, req.body.id))).length > 0)
         return res.status(400).send("Another entry with the new filename already exists!");
     let entry = entriesFound[0];
-    if (typeof req.body.title !== 'string' || req.body.title.length > 128 || req.body.title.length < 1)
+    if (typeof req.body.title !== 'string' || req.body.title.length > 250 || req.body.title.length < 1)
         return res.status(400).send("Title too long (max 250 chars) or too short");
     if (!req.body.title.match(/^([0-9a-z -_\.,\(\)&\/\!\?\'\"]*)$/i))
         return res.status(400).send("Title must include only letters, spaces, or the following symbols: .,&-()/!?\'\"");
