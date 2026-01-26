@@ -231,8 +231,7 @@ router.get('/generate-backup', async (req, res) => {
     zipRecursive(zip, "gallery", null);
     res.status(202);
     let generated = await zip.generateAsync({type: 'blob'}, data => backupProgress = data.percent);
-    backupDone = true;
-    fs.createWriteStream("backup.zip").write(Buffer.from(await generated.arrayBuffer()));
+    fs.createWriteStream("backup.zip").write(Buffer.from(await generated.arrayBuffer()), () => backupDone = true);
 });
 
 router.get('/backup-progress', (req, res) => res.json(backupDone ? 101 : backupProgress));

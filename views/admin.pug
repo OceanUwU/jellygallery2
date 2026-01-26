@@ -26,7 +26,7 @@ block content
         else
             button.btn.btn-warning.mb-2#genBackup(type="button") Request to Generate Full Gallery Backup
             .progress.w-100.mb-4.d-none#backupProgress(role="progressbar")
-                .progress-bar#backupProgressProgress(style="transition: width 0.08s ease-out;width:0%")
+                .progress-bar.progress-bar-striped.progress-bar-animated#backupProgressProgress(style="transition: width 0.08s ease-out;width:0%")
             if backupDate != null
                 .d-flex.flex-column.align-items-center#dl-backup
                     p Last Backup: #[b#backupDate=backupDate]
