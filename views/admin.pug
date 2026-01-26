@@ -93,6 +93,7 @@ block content
                         b= name
                         = ": "
                         != allTags.filter(t => t.t == type).map(t => '<a href="#" title="'+t.i+'" onclick="editTag('+t.i+');event.preventDefault();")>'+t.n+'</a>').join(', ')
+                +tagList(4, "Type")
                 +tagList(0, "Generic")
                 +tagList(1, "Author")
                 +tagList(2, "Character")
