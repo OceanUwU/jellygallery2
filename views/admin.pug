@@ -139,11 +139,12 @@ block content
                             button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
                         .modal-body
                             select.form-select.mb-2#newTagType
-                                option(value="" disabled selected) Type
+                                option(value="" disabled selected) Tag Type
                                 option(value="0") Generic
                                 option(value="1") Author
                                 option(value="2") Character
                                 option(value="3") Arc
+                                option(value="4") Content Type
                             input.form-control.w-100#newTagName(placeholder="Tag Title")
                             br
                             span.small.text-secondary
@@ -235,11 +236,12 @@ block content
                             button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
                         .modal-body
                             select.form-select.mb-2#editTagType
-                                option(value="" disabled selected) Type
+                                option(value="" disabled selected) Tag Type
                                 option(value="0") Generic
                                 option(value="1") Author
                                 option(value="2") Character
                                 option(value="3") Arc
+                                option(value="4") Content Type
                             input.form-control.w-100.mb-2#editTagName(placeholder="Tag Title")
                             textarea.form-control.w-100#editTagDesc(placeholder="Description")
                             br

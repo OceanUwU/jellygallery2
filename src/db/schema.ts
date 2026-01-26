@@ -17,7 +17,8 @@ export enum TagType {
     Author = 1,
     Character = 2,
     Arc = 3,
-    Max = 4,
+    Type = 4,
+    Max = 5,
 };
 
 export const tags = sqliteTable("tags", {

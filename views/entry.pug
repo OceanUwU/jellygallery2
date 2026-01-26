@@ -88,6 +88,8 @@ block content
         .text-center#desc= entry.description
         hr.w-100
     .text-center#tags
+        if tagGroups.hasOwnProperty(4)
+            span.text-center #[b Type]: !{tagList(4)}
         if tagGroups.hasOwnProperty(2)
             span.text-center #[b Characters]: !{tagList(2)}
         if tagGroups.hasOwnProperty(0)
