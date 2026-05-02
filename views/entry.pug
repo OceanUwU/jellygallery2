@@ -13,6 +13,14 @@ block head
             byString = ['???'];
         }
         byString = "by " + byString.join(', ');
+        var byLinks = tags.filter(t => t.tags.type == 1).map(t => `<a href="/entries?t=${t.tags.id}">${t.tags.name}</a>`);
+        if (byLinks.length > 1) {
+            byLinks[byLinks.length - 2] = byLinks[byLinks.length - 2] + " & " + byLinks[byLinks.length - 1];
+            byLinks.splice(byString.length - 1, 1);
+        } else if (byLinks.length == 0) {
+            byLinks = ['???'];
+        }
+        byLinks = "by " + byLinks.join(', ');
         
         var tagGroups = {};
         for (let i of tags) {
@@ -53,7 +61,7 @@ block content
     h1.text-center
         = entry.title
         =" "
-        span(style="font-size:0.5em")!= byString
+        span(style="font-size:0.5em")!= byLinks
     .entry.mb-3.w-100.d-flex.justify-content-center
         case type
             when 'image'
