@@ -1,11 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
 
+[data-bs-theme="light"] {
+  --colour-fg: #000000;
+  --colour-bg: #9bfff0;
+  --colour-nav: #42b1d6;
+  --colour-footer: #348ba9;
+  --colour-border: #7fc9d8;
+  --colour-nav-text: rgb(169, 232, 255);
+  --colour-bg-main: #dafffacf;
+  --bg-image: url("/img/bg.png");
+}
+
+[data-bs-theme="dark"] {
+  --colour-fg: #ffffff;
+  --colour-bg: #0f2a13;
+  --colour-nav: #123f2a;
+  --colour-footer: #103926;
+  --colour-border: #216e4a;
+  --colour-nav-text: rgb(169, 255, 185);
+  --colour-bg-main: #243824cf;
+  --bg-image: url("/img/bgdark.png");
+}
+
 body {
     font-family: "Comic Relief", system-ui;
     font-weight: 400;
     font-style: normal;
-    background-color: #9bfff0;
-    background-image: url("/img/bg.png");
+    background-color: var(--colour-bg);
+    background-image: var(--bg-image);
     background-attachment: fixed;
     display: flex;
     flex-direction: column;
@@ -18,8 +40,8 @@ body {
 }
 
 .main-inside {
-    background-color: #9bfff0 !important;
-    background-image: url("/img/bg.png") !important;
+    background-color: var(--colour-bg) !important;
+    background-image: var(--bg-image) !important;
     background-attachment: fixed !important;
     display: flex;
     justify-content: center;
@@ -28,11 +50,11 @@ body {
 }
 
 .centre-area {
-    background: #dafffacf;
+    background: var(--colour-bg-main);
     min-width: 50vw;
     max-width: 90vw;
     width: 1300px;
-    border: 2px solid #7fc9d8;
+    border: 2px solid var(--colour-border);
     border-top-width: 0;
     border-bottom-width: 0;
 }
@@ -48,24 +70,24 @@ body {
 
 
 .navbar {
-    background: #42b1d6;
-    color: rgb(169, 232, 255) !important;
+    background: var(--colour-nav);
+    color: var(--colour-nav-text) !important;
     margin-left: 3vw;
     margin-right: 3vw;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    border: 2px solid #7fc9d8;
+    border: 2px solid var(--colour-border);
     border-top-width: 0;
 }
 
 .navbar-brand {
-    color: rgb(169, 232, 255) !important;
+    color: var(--colour-nav-text) !important;
 }
 
 footer {
-    background: #348ba9;
-    color: rgb(169, 232, 255);
-    border: 0 solid #7fc9d8;
+    background: var(--colour-footer);
+    color: var(--colour-nav-text);
+    border: 0 solid var(--colour-border);
     border-top-width: 2px;
 }
 

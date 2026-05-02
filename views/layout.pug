@@ -12,7 +12,7 @@ html.h-100
             block title
             = " | Jelly G.allery"
         block head
-    body
+    body(data-bs-theme="light")
         nav.navbar.navbar-expand-lg.sticky-top.py-1
             .container-fluid.mx-3
                 a.navbar-brand.mb-0.h1(href="/") Jelly G.allery
@@ -26,6 +26,7 @@ html.h-100
                             a.nav-link(href="/arcs" class=url.startsWith("/arcs") ? "active" : "") Arcs
                         //-li.nav-item
                         //-    a.nav-link(href="/characters" class=url.startsWith("/characters") ? "active" : "") Characters
+                    button.btn.me-1#themeToggle(type="button"): i.bi#themeIcon
                     .form
                         .input-group
                             input.form-control#searchBox(type="search" placeholder="Search" aria-label="Search" aria-describedby="searchButton" maxlength=25)

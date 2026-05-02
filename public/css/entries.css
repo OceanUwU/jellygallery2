@@ -26,7 +26,7 @@
     font-size: 2em;
     position: relative;
     text-decoration: none;
-    outline-color: white;
+    outline-color: var(--color-bg);
     outline-style: outset;
     outline-width: 0px;
     transition: all 0.25s ease-out;
@@ -70,11 +70,16 @@
 }
 
 .entry > img {
-    background: #ffffffaf;
+    background: #ffffff3f;
     border: 1px solid #dee2e6;
     object-fit: contain;
     max-width: 100%;
     max-height: 100%;
+}
+
+[data-bs-theme="dark"] .entry > img {
+    background: #0000003f;
+    border: 1px solid #636b67;
 }
 
 .fileTitle {
@@ -88,10 +93,15 @@
     background: #ffffff3f;
 }
 
+[data-bs-theme="dark"] .fileTitle {
+    background: #0000003f;
+    border: 1px solid #636b67;
+}
+
 .fileTitle > span {
     font-size: 24px;
     text-align: center;
-    color: black;
+    color: var(--colour-fg);
 }
 
 .audioHint {
