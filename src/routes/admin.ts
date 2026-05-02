@@ -99,7 +99,7 @@ router.post('/edit-entry', express.json(), async (req, res) => {
     if (newName && (await db.select().from(entries).where(eq(entries.filename, req.body.id))).length > 0)
         return res.status(400).send("Another entry with the new filename already exists!");
     let entry = entriesFound[0];
-    if (typeof req.body.title !== 'string' || req.body.title.length > 250 || req.body.title.length < 1)
+    if (typeof req.body.title !== 'string' || req.body.title.length > 250 || (req.body.title.length < 1 && req.body.listed))
         return res.status(400).send("Title too long (max 250 chars) or too short");
     if (!req.body.title.match(/^([0-9a-z -_\.,\(\)&\/\!\?\'\"]*)$/i))
         return res.status(400).send("Title must include only letters, spaces, or the following symbols: .,&-()/!?\'\"");
@@ -111,14 +111,23 @@ router.post('/edit-entry', express.json(), async (req, res) => {
         return res.status(400).send("Invalid tags field");
     let tagsToAdd = req.body.tags == '' ? [] : req.body.tags.split(',').map(t => Number.parseInt(t));
     tagsToAdd = tagsToAdd.filter((t, i) => tagsToAdd.indexOf(t) === i);
-    if (tagsToAdd.length == 0)
+    if (req.body.listed && tagsToAdd.length == 0)
         return res.status(400).send("Must add at least one tag.");
+    let foundAuthor = false;
+    let foundType = false;
     for (let t of tagsToAdd) {
         let valid = !Number.isNaN(t);
-        if (valid) valid = (await db.select().from(tags).where(eq(tags.id, t))).length == 1;
+        let found = await db.select().from(tags).where(eq(tags.id, t));
+        if (valid) valid = found.length == 1;
+        if (found[0].type == TagType.Author) foundAuthor = true;
+        else if (found[0].type == TagType.Type) foundType = true;
         if (!valid)
             return res.status(400).send("Unknown tag found: "+t);
     }
+    if (req.body.listed && !foundAuthor) 
+        return res.status(400).send("At least one \"Author\" tag is required");
+    if (req.body.listed && !foundType) 
+        return res.status(400).send("At least one \"Type\" tag is required");
     if (newName) {
         if (fs.existsSync(`gallery/files/${entry.filename}.${entry.filetype}`)) fs.renameSync(`gallery/files/${entry.filename}.${entry.filetype}`, `gallery/files/${req.body.id.trim()}.${entry.filetype}`);
         if (fs.existsSync(`gallery/thumb/${entry.filename}.png`)) fs.renameSync(`gallery/thumb/${entry.filename}.png`, `gallery/thumb/${req.body.id.trim()}.png`);
