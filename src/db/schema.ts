@@ -11,6 +11,8 @@ export const entries = sqliteTable("entries", {
   created: int({ mode: 'timestamp' }),
   createdBy: text(),
 });
+export type Entry = typeof entries.$inferSelect;
+export type NewEntry = typeof entries.$inferSelect;
 
 export enum TagType {
     Generic = 0,
@@ -29,9 +31,13 @@ export const tags = sqliteTable("tags", {
     created: int({ mode: 'timestamp' }),
     createdBy: text(),
 });
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
 
 export const entryTags = sqliteTable("entry_tags", {
     entry: int().notNull().references(() => entries.id),
     tag: int().notNull().references(() => tags.id),
     order: int().notNull(),
 });
+export type EntryTag = typeof entryTags.$inferSelect;
+export type NewEntryTag = typeof entryTags.$inferSelect;

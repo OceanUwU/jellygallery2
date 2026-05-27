@@ -1,7 +1,7 @@
 
 import db from './db';
 import { eq, ne, and, desc, count } from 'drizzle-orm';
-import { entries, entryTags, tags, TagType } from './db/schema';
+import { entries, entryTags, Tag, tags, TagType } from './db/schema';
 import config from './config';
 import pug from 'pug';
 import fs from 'fs';
@@ -17,17 +17,19 @@ export async function refreshAll() {
 }
 
 export async function refreshTags() {
-    let cachedTags: Array<any> = await db.select({ id: tags.id, name: tags.name, type: tags.type, description: tags.description }).from(tags).where(ne(tags.type, TagType.Arc));
+    let cachedTags: Array<Tag> = await db.select().from(tags).where(ne(tags.type, TagType.Arc));
+    let tagCounts: Record<number, number> = {};
     for (let tag of cachedTags)
-        tag.count = (await db.select({count: count()}).from(entryTags).leftJoin(entries, eq(entries.id, entryTags.entry)).where(and(eq(entryTags.tag, tag.id), eq(entries.listed, true))))[0].count;
-    cachedTags = cachedTags.filter(t => t.count > 0);
-    cachedTags.sort((a, b) => b.count - a.count);
-    let groupedTags = {};
+        tagCounts[tag.id] = (await db.select({count: count()}).from(entryTags).leftJoin(entries, eq(entries.id, entryTags.entry)).where(and(eq(entryTags.tag, tag.id), eq(entries.listed, true))))[0].count;
+    cachedTags = cachedTags.filter(t => tagCounts[t.id] > 0);
+    cachedTags.sort((a, b) => tagCounts[b.id] - tagCounts[a.id]);
+    let groupedTags: Record<number, Array<Tag>> = {};
     for (let tag of cachedTags) {
-        if (!groupedTags.hasOwnProperty(tag.type))
-            groupedTags[tag.type] = [];
-        groupedTags[tag.type].push(tag);
-        delete tag.type;
+        let type = (tag.type as number);
+        if (!groupedTags.hasOwnProperty(type))
+            groupedTags[type] = [];
+        groupedTags[type].push(tag);
+        //delete tag.type;
     }
     cached.tags = groupedTags;
 }

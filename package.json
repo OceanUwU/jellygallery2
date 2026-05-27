@@ -32,7 +32,10 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@types/connect-sqlite3": "^0.9.6",
     "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/passport-discord": "^0.1.15",
     "drizzle-kit": "^0.31.8",
     "tsx": "^4.21.0"
   }

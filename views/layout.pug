@@ -27,10 +27,23 @@ html.h-100
                         //-li.nav-item
                         //-    a.nav-link(href="/characters" class=url.startsWith("/characters") ? "active" : "") Characters
                     button.btn.me-1#themeToggle(type="button"): i.bi#themeIcon
-                    .form
+                    .form.me-2
                         .input-group
                             input.form-control#searchBox(type="search" placeholder="Search" aria-label="Search" aria-describedby="searchButton" maxlength=25)
                             button.btn.btn-outline-light#searchButton(type="submit"): i.bi.bi-search
+                    if user
+                        .dropdown
+                            button.btn.dropdown-toggle(href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+                                img.rounded.border.border-dark(src=src="https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+"?size=20" style="margin-top:-3px")
+                                span(style="margin-left:3px")
+                                    span= user.username
+                            ul.dropdown-menu.dropdown-menu-right
+                                if admin
+                                    li: a.dropdown-item(href="/admin") Admin
+                                    li: hr.dropdown-divider
+                                li: a.dropdown-item(href="/auth/logout?returnTo="+url) Logout
+                    else
+                        a.btn.btn-sm.btn-success.px-2.py-1#login(href="/auth/login?returnTo="+url) Login
         main.main
             .main-inside
                 .centre-area

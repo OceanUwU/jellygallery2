@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-        "baseUrl": "src",
         "module": "commonjs",
-        "moduleResolution": "node",
         "sourceMap": true,
         "esModuleInterop": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "lib": ["ES2022"]
     },
     "include": ["src/**/*.ts", "src/**/*.d.ts"]
 }

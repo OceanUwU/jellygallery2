@@ -10,7 +10,7 @@ block content
             a.btn.btn-lg.btn-primary(href="/auth/login") Log in
     else
         h1
-            if authorised
+            if admin
                 | G.allery Editor Tools
             else
                 | Admin Tools
@@ -19,9 +19,9 @@ block content
             img.mx-1.rounded-circle.border.border-dark(src="https://cdn.discordapp.com/avatars/"+user.id+"/"+user.avatar+"?size=20")
             =user.username
             =" "
-            a.btn.btn-sm.btn-info(href="/auth/logout") Log out
+            a.btn.btn-sm.btn-info(href="/auth/logout?returnTo=/admin") Log out
             | ?
-        if !authorised
+        if !admin
             p This account is not authorised to use admin tools.
         else
             button.btn.btn-warning.mb-2#genBackup(type="button") Request to Generate Full Gallery Backup

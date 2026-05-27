@@ -12,15 +12,13 @@ import { refreshAll, refreshArcs, refreshTags } from '../cached';
 
 const router = Router();
 
-router.get('/', async (req, res) => res.render('admin', {
-    user: req.user,
-    authorised: req["authorised"],
+router.get('/', async (req, res) => res.render('admin', res.locals.admin ? {
     unlisted: await db.select().from(entries).where(eq(entries.listed, false)),
     recentTags: await db.select().from(tags).orderBy(desc(tags.created)).limit(5),
     allTags: await db.select({i: tags.id, n: tags.name, t: tags.type}).from(tags).orderBy(asc(tags.name)),
     backupDate: backupDone ? fs.statSync("backup.zip").mtimeMs : null,
     backupSize: backupDone ? fs.statSync("backup.zip").size : null,
-}));
+} : []));
 
 const fileLimit = 50;
 let upload = multer({
@@ -36,7 +34,7 @@ const thumbnailSize = 128;
 
 
 router.post('/upload', express.urlencoded({ extended: false }), (req, res) => {
-    if (!req["authorised"]) return res.sendStatus(403);
+    if (!res.locals.admin) return res.sendStatus(403);
     upload(req, res, async err => {
         if (err instanceof multer.MulterError) {
             if (err.code == 'LIMIT_FILE_SIZE')
@@ -58,7 +56,7 @@ router.post('/upload', express.urlencoded({ extended: false }), (req, res) => {
             date: new Date(),
             listed: false,
             created: new Date(),
-            createdBy: req.user['id'],
+            createdBy: res.locals.user.id,
         }
         if ((await db.select().from(entries).where(eq(entries.filename, entry.filename))).length > 0)
             return res.status(400).send("Another entry with that filename already exists!");
@@ -86,7 +84,7 @@ router.post('/upload', express.urlencoded({ extended: false }), (req, res) => {
 });
 
 router.post('/edit-entry', express.json(), async (req, res) => {
-    if (!req["authorised"]) return res.sendStatus(403);
+    if (!res.locals.admin) return res.sendStatus(403);
     if (req.body == undefined) return res.status(400).send("unknown error");
     if (typeof req.body.id !== 'string' || req.body.id.length > 128 || req.body.id.length < 1 || typeof req.body.oldId !== 'string' || req.body.oldId.length < 1)
         return res.status(400).send("Filename too long (max 128 chars) or too short");
@@ -153,7 +151,7 @@ router.post('/edit-entry', express.json(), async (req, res) => {
 });
 
 router.post('/delete-entry/:id', express.json(), async (req, res) => {
-    if (!req["authorised"]) return res.sendStatus(403);
+    if (!res.locals.admin) return res.sendStatus(403);
     let entry = await db.select().from(entries).where(eq(entries.filename, req.params.id));
     if (entry.length == 0) return res.sendStatus(404);
     let e = entry[0];
@@ -168,7 +166,7 @@ router.post('/delete-entry/:id', express.json(), async (req, res) => {
 
 
 router.post('/create-tag', express.json(), async (req, res) => {
-    if (!req["authorised"]) return res.sendStatus(403);
+    if (!res.locals.admin) return res.sendStatus(403);
     if (req.body == undefined) return res.status(400).send("unknown error");
     if (typeof req.body.name !== 'string' || req.body.name.length > 32 || req.body.name.length < 1 || !Number.isInteger(req.body.type) || req.body.type < 0 || req.body.type >= TagType.Max)
         return res.status(400).send("Name too long (max 32 chars) or too short");
@@ -178,7 +176,7 @@ router.post('/create-tag', express.json(), async (req, res) => {
         name: req.body.name.trim(),
         type: req.body.type,
         created: new Date(),
-        createdBy: req.user['id'],
+        createdBy: res.locals.user.id,
     }
     if ((await db.select().from(tags).where(eq(tags.name, tag.name))).length > 0)
         return res.status(400).send("Tag with that name already exists!");
@@ -190,7 +188,7 @@ router.post('/create-tag', express.json(), async (req, res) => {
 
 
 router.post('/edit-tag', express.json(), async (req, res) => {
-    if (!req["authorised"]) return res.sendStatus(403);
+    if (!res.locals.admin) return res.sendStatus(403);
     if (req.body == undefined) return res.status(400).send("unknown error");
     if (typeof req.body.name !== 'string' || req.body.name.length > 32 || req.body.name.length < 1 || !Number.isInteger(req.body.type) || req.body.type < 0 || req.body.type >= TagType.Max)
         return res.status(400).send("Name too long (max 32 chars) or too short");
@@ -209,7 +207,7 @@ router.post('/edit-tag', express.json(), async (req, res) => {
 });
 
 router.post('/delete-tag/:id', express.json(), async (req, res) => {
-    if (!req["authorised"]) return res.sendStatus(403);
+    if (!res.locals.admin) return res.sendStatus(403);
     let id = Number.parseInt(req.params.id);
     if (Number.isNaN(id)) return res.status(400).send("id must be a number");
     await db.delete(entryTags).where(eq(entryTags.tag, id));
@@ -219,14 +217,14 @@ router.post('/delete-tag/:id', express.json(), async (req, res) => {
     return res.sendStatus(200);
 });
 
-function zipRecursive(zip, path, fullPath) {
+function zipRecursive(zip: JSZip, path: string, fullPath: string | null) {
     if (fullPath == null) fullPath = path;
     let folder = zip.folder(path);
     for (let item of fs.readdirSync(fullPath))
         if (item.includes('.'))
-            folder.file(item, fs.readFileSync(`${fullPath}/${item}`));
+            folder!.file(item, fs.readFileSync(`${fullPath}/${item}`));
         else
-            zipRecursive(folder, item, `${fullPath}/${item}`);
+            zipRecursive(folder!, item, `${fullPath}/${item}`);
 }
 
 let backupProgress = -1;

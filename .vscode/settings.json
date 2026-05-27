@@ -1,3 +1,4 @@
 {
     "debug.internalConsoleOptions": "openOnSessionStart",
+    "explorer.fileNesting.expand": false
 }

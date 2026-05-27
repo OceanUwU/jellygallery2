@@ -1,10 +1,26 @@
 
 import { Router } from 'express';
 import db from '../db';
-import { eq, desc, asc, and, count, sql, exists, like } from 'drizzle-orm';
-import { entries, entryTags, tags, TagType } from '../db/schema';
+import { eq, desc, asc, and, count, sql, exists, like, SQL } from 'drizzle-orm';
+import { entries, Entry, entryTags, Tag, tags, TagType } from '../db/schema';
 
 const router = Router();
+
+interface APITag {
+    id: number;
+    type: number | null;
+    name: string | null;
+};
+interface APIEntry {
+    i: number;
+    id: string;
+    ext: string;
+    title: string;
+    description: string | null;
+    date: Date;
+    listed: boolean;
+    tags?: Array<APITag>;
+};
 
 router.get('/tag/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
@@ -15,10 +31,10 @@ router.get('/tag/:id', async (req, res) => {
 });
 
 router.get('/e/:id', async (req, res) => {
-    let entry = await db.select({i: entries.id, id: entries.filename, ext: entries.filetype, title: entries.title, description: entries.description, date: entries.date, listed: entries.listed}).from(entries).where(eq(entries.filename, req.params.id));
+    let entry: Array<APIEntry> = await db.select({i: entries.id, id: entries.filename, ext: entries.filetype, title: entries.title, description: entries.description, date: entries.date, listed: entries.listed}).from(entries).where(eq(entries.filename, req.params.id));
     if (entry.length == 0) return res.sendStatus(404);
     let e = entry[0];
-    e['tags'] = await db.select({id: entryTags.tag, type: tags.type, name: tags.name}).from(entryTags).where(eq(entryTags.entry, e.i)).orderBy(entryTags.order).leftJoin(tags, eq(tags.id, entryTags.tag));
+    e.tags = await db.select({id: entryTags.tag, type: tags.type, name: tags.name}).from(entryTags).where(eq(entryTags.entry, e.i)).orderBy(entryTags.order).leftJoin(tags, eq(tags.id, entryTags.tag));
     res.json(e);
 });
 
@@ -29,7 +45,7 @@ router.get('/entries', async (req, res) => {
     if (typeof req.query.p == "string")
         page = Number.parseInt(req.query.p);
     if (Number.isNaN(page) || page < 0) return res.status(400).send("invalid page number");
-    let tagFilter = [];
+    let tagFilter: Array<number> = [];
     if (typeof req.query.t == "string")
         tagFilter = req.query.t.split('-').map(t => Number.parseInt(t));
     tagFilter = tagFilter.filter((t, i) => tagFilter.indexOf(t) === i);
@@ -46,7 +62,7 @@ router.get('/entries', async (req, res) => {
         if (!Number.isNaN(qLimit))
             limit = Math.min(maxPageLimit, Math.max(qLimit, 1));
     }
-    let condition = eq(entries.listed, true);
+    let condition: SQL | undefined = eq(entries.listed, true);
     for (let tag of tagFilter)
         condition = and(exists(db.select().from(entryTags).where(and(eq(entryTags.entry, entries.id), eq(entryTags.tag, tag)))), condition);
     if (search != null)

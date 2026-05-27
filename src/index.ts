@@ -2,16 +2,28 @@ import express from 'express';
 import { resolve } from 'path';
 import config from './config';
 import route from './routes';
-import expressSession from 'express-session';
+import expressSession, { Session, SessionData } from 'express-session';
 import SQLiteStore from 'connect-sqlite3';
 import passport from 'passport';
-import { Strategy as DiscordStrategy } from 'passport-discord';
+import { Strategy as DiscordStrategy, Profile } from 'passport-discord';
 import { refreshAll } from './cached';
+import session from 'express-session';
+
+interface ResponseLocals {
+    user?: Profile;
+    admin: boolean;
+}
+
+declare module 'express' {
+    export interface Response {
+       locals: ResponseLocals;
+    }
+}
 
 refreshAll();
 const app = express();
 app.use(expressSession({
-    store: new new SQLiteStore(expressSession)({ db: "sessions.db" }),
+    store: new (SQLiteStore(expressSession) as any)({ db: "sessions.db" }),
     secret: config.secret,
     cookie: { maxAge: 30 * 24*60*60*1000 },
 }));
@@ -21,18 +33,19 @@ passport.use(new DiscordStrategy({
     callbackURL: config.host + 'auth/cb',
     scope: ['identify'],
 }, (accessToken, refreshToken, profile, cb) => {
-    profile.refreshToken = refreshToken;
+    //profile.refreshToken = refreshToken;
     cb(null, profile);
 }))
-passport.serializeUser((user, cb) => cb(null, user));
-passport.deserializeUser((user, cb) => cb(null, user));
+passport.serializeUser((user: Express.User, cb) => cb(null, user));
+passport.deserializeUser((user: Profile, cb) => cb(null, user));
 app.use(passport.initialize());
 app.use(passport.session());
 app.set('views', './views');
 app.locals.basedir = resolve() + '/views';
 app.set('view engine', 'pug');
 app.use((req, res, next) => {
-    req["authorised"] = req.hasOwnProperty('user') && config.authorisedUsers.includes(req.user["id"]);
+    res.locals.user = req.user;
+    res.locals.admin = Object.hasOwn(res.locals, 'user') && res.locals.user != undefined && config.authorisedUsers.includes(res.locals.user.id);
     next();
 })
 app.use(route);
