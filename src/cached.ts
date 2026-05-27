@@ -16,13 +16,16 @@ export async function refreshAll() {
     await generateRSS();
 }
 
+interface CachedTag extends Tag {
+    count?: number;
+}
+
 export async function refreshTags() {
-    let cachedTags: Array<Tag> = await db.select().from(tags).where(ne(tags.type, TagType.Arc));
-    let tagCounts: Record<number, number> = {};
+    let cachedTags: Array<CachedTag> = await db.select().from(tags).where(ne(tags.type, TagType.Arc));
     for (let tag of cachedTags)
-        tagCounts[tag.id] = (await db.select({count: count()}).from(entryTags).leftJoin(entries, eq(entries.id, entryTags.entry)).where(and(eq(entryTags.tag, tag.id), eq(entries.listed, true))))[0].count;
-    cachedTags = cachedTags.filter(t => tagCounts[t.id] > 0);
-    cachedTags.sort((a, b) => tagCounts[b.id] - tagCounts[a.id]);
+        tag.count = (await db.select({count: count()}).from(entryTags).leftJoin(entries, eq(entries.id, entryTags.entry)).where(and(eq(entryTags.tag, tag.id), eq(entries.listed, true))))[0].count;
+    cachedTags = cachedTags.filter(t => t.count! > 0);
+    cachedTags.sort((a, b) => b.count! - a.count!);
     let groupedTags: Record<number, Array<Tag>> = {};
     for (let tag of cachedTags) {
         let type = (tag.type as number);
