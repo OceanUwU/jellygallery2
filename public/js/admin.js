@@ -147,11 +147,11 @@ document.getElementById('createTagButton').onclick = () => {
     xhr.send(JSON.stringify(body));
 };
 
-document.getElementById("tagAdder").innerHTML = document.getElementById("allTags").innerHTML;
-document.querySelectorAll("#tagAdder a").forEach(a => a.setAttribute("onclick", "addTag("+a.title+")"));
+//document.getElementById("tagAdder").innerHTML = document.getElementById("allTags").innerHTML;
+//document.querySelectorAll("#tagAdder a").forEach(a => a.setAttribute("onclick", "addTag("+a.title+")"));
 
 const entryEditTags = document.getElementById("entryEditTags");
-window.addTag = (id) => {
+function addTag(id) {
     if (entryEditTags.value == "" || entryEditTags.value == null)
         entryEditTags.value = id;
     else if (entryEditTags.value.split(',').includes(id.toString()))
@@ -167,6 +167,14 @@ entryEditTags.onkeyup = entryEditTags.onchange = () => {
     }
     document.getElementById("editTagDisplay").innerHTML = entryEditTags.value.split(",").map(i => `<b>${i}</b>: ${document.querySelector(`#allTags a[title='${i}']`) == null ? "UNKNOWN TAG" : document.querySelector(`#allTags a[title='${i}']`).innerText}`).join(', ');
 }
+
+function onAddTagChanged(event) {
+    if (!document.getElementById("addTag").value.endsWith(',')) return;
+    addTag(document.getElementById("addTag").value.slice(0, -1));
+    document.getElementById("addTag").value = "";
+}
+document.getElementById("addTag").value = "";
+document.getElementById("addTag").onkeyup = document.getElementById("addTag").onchange = onAddTagChanged;
 
 let editingEntry = null;
 const converter = new showdown.Converter({
