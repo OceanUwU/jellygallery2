@@ -75,6 +75,11 @@ block content
             when 'file'
                 .border.mw-100.mb-2#entryEditFileDisplay
                     a.btn.btn-sm.btn-primary#entryEditFileDownload(src="/file/"+entry.filename+"."+entry.filetype target="_blank") Download file
+    if user
+        button.btn.btn-sm.btn-warning#fav(onclick="fav()" title="Favourites" data-bs-toggle="tooltip") #[i.bi#favvedIcon(class=fav ? 'bi-star-fill' : 'bi-star')] #[span#favs=favs]
+    else
+        span.d-inline-block(tabindex="0" data-bs-toggle="tooltip" title="Log in to favourite images!")
+            button.btn.btn-sm.btn-warning(disabled) #[i.bi.bi-star] #{favs}
     if query.length > 0
         .d-flex.justify-content-evenly.align-items-center.arc(style="gap: 0.5em")
             if queryAdjacent.prev

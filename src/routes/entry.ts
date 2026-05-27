@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import db from '../db';
 import { eq, and, sql, SQL } from 'drizzle-orm';
-import { entries, entryTags, tags } from '../db/schema';
+import { entries, entryTags, favourites, tags } from '../db/schema';
 import { getFileType } from '../shared';
 import config from '../config';
 import { getSearchQuery, SearchQuery } from '../util';
@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
             queryAdjacent = await db.get(sql.join(sqlChunks, sql.raw(' ')));
         }
     }
-    res.render('entry', {entry: e, tags: theTags, type: getFileType(e.filetype), host: config.host, adjacent: adjacent, query: qString, queryAdjacent});
+    res.render('entry', {entry: e, tags: theTags, type: getFileType(e.filetype), host: config.host, adjacent: adjacent, query: qString, queryAdjacent, fav: (!Object.hasOwn(res.locals, 'user') || !res.locals.user) ? false : (await db.select().from(favourites).where(and(eq(favourites.entry, e.id), eq(favourites.user, res.locals.user.id)))).length > 0, favs: (await db.select().from(favourites).where(eq(favourites.entry, e.id))).length});
 });
 
 export default router;

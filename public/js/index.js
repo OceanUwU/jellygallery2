@@ -29,3 +29,6 @@ document.getElementById('searchButton').onclick = () => {
 document.getElementById('searchBox').onkeydown = event => {
     if (event.key == "Enter") document.getElementById('searchButton').onclick();
 }
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

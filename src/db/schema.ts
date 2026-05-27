@@ -41,3 +41,10 @@ export const entryTags = sqliteTable("entry_tags", {
 });
 export type EntryTag = typeof entryTags.$inferSelect;
 export type NewEntryTag = typeof entryTags.$inferSelect;
+
+export const favourites = sqliteTable("favourites", {
+    user: text().notNull(),
+    entry: int().notNull().references(() => entries.id),
+});
+export type Favourite = typeof favourites.$inferSelect;
+export type NewFavourite = typeof favourites.$inferSelect;

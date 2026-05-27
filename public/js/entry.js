@@ -40,3 +40,25 @@ let prevInQuery = document.getElementById('prevInQuery');
 if (prevInQuery) prevInQuery.href += location.search;
 let nextInQuery = document.getElementById('nextInQuery');
 if (nextInQuery) nextInQuery.href += location.search;
+
+window.fav = e => {
+    document.getElementById('fav').setAttribute('disabled', '');
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/fav/"+filename, true);
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            let wasFavved = document.getElementById("favvedIcon").classList.contains('bi-star-fill');
+            if (xhr.responseText == "true") {
+                document.getElementById("favvedIcon").classList.remove('bi-star');
+                document.getElementById("favvedIcon").classList.add('bi-star-fill');
+                document.getElementById("favs").innerText = Number.parseInt(document.getElementById("favs").innerText) + (wasFavved ? 0 : 1);
+            } else {
+                document.getElementById("favvedIcon").classList.add('bi-star');
+                document.getElementById("favvedIcon").classList.remove('bi-star-fill');
+                document.getElementById("favs").innerText = Number.parseInt(document.getElementById("favs").innerText) + (wasFavved ? -1 : 0);
+            }
+        }
+        document.getElementById("fav").removeAttribute('disabled');
+    };
+    xhr.send();
+}

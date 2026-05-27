@@ -43,6 +43,13 @@
       "when": 1768814812844,
       "tag": "0005_robust_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1779905585401,
+      "tag": "0006_narrow_ulik",
+      "breakpoints": true
     }
   ]
 }

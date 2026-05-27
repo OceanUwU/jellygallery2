@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import db from '../db';
 import { eq, desc, asc, and, count, sql, exists, like, SQL } from 'drizzle-orm';
-import { entries, Entry, entryTags, Tag, tags, TagType } from '../db/schema';
+import { entries, Entry, entryTags, favourites, Tag, tags, TagType } from '../db/schema';
 import { getSearchQuery } from '../util';
 
 const router = Router();
@@ -37,6 +37,19 @@ router.get('/e/:id', async (req, res) => {
     let e = entry[0];
     e.tags = await db.select({id: entryTags.tag, type: tags.type, name: tags.name}).from(entryTags).where(eq(entryTags.entry, e.i)).orderBy(entryTags.order).leftJoin(tags, eq(tags.id, entryTags.tag));
     res.json(e);
+});
+
+router.post('/fav/:id', async (req, res) => {
+    if (!Object.hasOwn(res.locals, 'user') || !res.locals.user) return res.sendStatus(404);
+    let entry: Entry[] = await db.select().from(entries).where(eq(entries.filename, req.params.id));
+    if (entry.length == 0) return res.sendStatus(404);
+    let e = entry[0];
+    let fav = await db.select().from(favourites).where(and(eq(favourites.entry, e.id), eq(favourites.user, res.locals.user.id)));
+    if (fav.length == 0)
+        await db.insert(favourites).values({entry: e.id, user: res.locals.user.id});
+    else
+        await db.delete(favourites).where(and(eq(favourites.entry, e.id), eq(favourites.user, res.locals.user.id)));
+    res.status(200).send(fav.length == 0);
 });
 
 router.get('/entries', async (req, res) => {
@@ -74,5 +87,6 @@ router.get('/arc/:arc/:entry', async (req, res) => {
   WINDOW w AS (ORDER BY entries.date DESC, entries.filename)
 ) WHERE filename = ${req.params.entry};`));
 });
+
 
 export default router;
