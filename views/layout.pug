@@ -40,8 +40,8 @@ html.h-100
                             ul.dropdown-menu.dropdown-menu-right
                                 if admin
                                     li: a.dropdown-item(href="/admin") #[i.bi.bi-database] Admin Tools
+                                li: a.dropdown-item(href="/entries?f") #[i.bi.bi-star] Favourites
                                     li: hr.dropdown-divider
-                                //-li: a.dropdown-item(href="/") #[i.bi.bi-star] Favourites
                                 li: a.dropdown-item(href="/auth/logout?returnTo="+url) #[i.bi.bi-box-arrow-left] Logout
                     else
                         a.btn.btn-sm.btn-success.px-2.py-1#login(href="/auth/login?returnTo="+url) Login

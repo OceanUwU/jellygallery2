@@ -24,6 +24,10 @@ router.get('/:id', async (req, res) => {
     let qString = "";
     let queryAdjacent: any = undefined;
     if (typeof query != "string") {
+        if (query.favourites && Object.hasOwn(res.locals, 'user') && res.locals.user) {
+            if (qString.length > 0) qString += ", "
+            qString += "Favourited"
+        }
         if (query.search != undefined) {
             if (qString.length > 0) qString += ", "
             qString += "Search: " + query.search
@@ -45,6 +49,8 @@ router.get('/:id', async (req, res) => {
                 sqlChunks.push(sql`AND title LIKE CONCAT('%', ${query.search}, '%')`);
             for (let tag of query.tags)
                 sqlChunks.push(sql`AND exists (SELECT entry FROM entry_tags WHERE entry = id AND tag = ${tag})`);
+            if (query.favourites && Object.hasOwn(res.locals, 'user') && res.locals.user)
+                sqlChunks.push(sql`AND exists (SELECT entry FROM favourites WHERE entry = id AND user = ${res.locals.user.id})`);
             sqlChunks.push(sql`WINDOW w AS (ORDER BY entries.date DESC, entries.filename)) WHERE id = ${e.id};`);
             queryAdjacent = await db.get(sql.join(sqlChunks, sql.raw(' ')));
         }

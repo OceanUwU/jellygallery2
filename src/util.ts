@@ -7,7 +7,8 @@ export interface SearchQuery {
     tags: Array<number>,
     search?: string;
     limit: number;
-    page: number
+    page: number;
+    favourites: boolean;
 }
 
 export function getSearchQuery(req: Request): SearchQuery | string {
@@ -15,6 +16,7 @@ export function getSearchQuery(req: Request): SearchQuery | string {
         tags: [],
         limit: pageLimit,
         page: 0,
+        favourites: false,
     };
     if (typeof req.query.p == "string")
         query.page = Number.parseInt(req.query.p);
@@ -26,6 +28,8 @@ export function getSearchQuery(req: Request): SearchQuery | string {
     if (typeof req.query.q == "string" && req.query.q.length > 25) return "search query too long (max 25 chars)";
     if (typeof req.query.q == "string" && req.query.q.length > 0)
         query.search = req.query.q;
+    if (Object.hasOwn(req.query, 'f'))
+        query.favourites = true;
     if (typeof req.query.limit == "string") {
         let qLimit = Number.parseInt(req.query.limit);
         if (!Number.isNaN(qLimit))

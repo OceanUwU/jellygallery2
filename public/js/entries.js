@@ -66,7 +66,7 @@ function updateFilterCounter(tags) {
         document.getElementById('filterCounter').classList.remove('d-none');
 }
 
-async function toggleTag(id) {
+function toggleTag(id) {
     let button = document.querySelector('.tag-list button[data-id="'+id+'"]');
     if (button == null) {
         return;
@@ -86,6 +86,17 @@ async function toggleTag(id) {
     url.searchParams.delete('p');
     history.replaceState({path:url.href},'',url.href);
 }
+
+function toggleFav(event) {
+    let url = new URL(location.href);
+    if (document.getElementById('favsOnly').checked)
+        url.searchParams.set('f', '');
+    else
+        url.searchParams.delete('f');
+    history.replaceState({path:url.href},'',url.href);
+}
+document.getElementById('favsOnly').onchange = toggleFav;
+document.getElementById('favsOnly').checked = false;
 
 let liveSearchChangeNum = 0;
 document.getElementById('liveSearch').onkeyup = event => {
@@ -155,6 +166,8 @@ addEventListener('load', async () => {
     }
     origTags = getTags();
     document.getElementById('liveSearch').value = origURL.searchParams.get('q');
+
+    document.getElementById('favsOnly').checked = origURL.searchParams.has('f');
     if (origTags.length > 0 || document.getElementById('liveSearch').value != '')
         new bootstrap.Collapse(document.getElementById('filters'))
     document.querySelectorAll('[data-bs-title]').forEach(p => new bootstrap.Popover(p, {trigger: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'hover focus' : 'hover', placement: 'bottom'}));

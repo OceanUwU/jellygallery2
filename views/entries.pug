@@ -28,6 +28,9 @@ block content
                 +tagList(2, "Character", false)
                 +tagList(1, "Author", false)
                 +tagList(0, "Tag", false)
+                .form-check.d-flex.justify-content-center.gap-2.mt-4
+                    input.form-check-input#favsOnly(type="checkbox" value="")
+                    label.form-check-label(for="favsOnly") #[i.bi.bi-star-fill] Favourites Only
     #list.mb-4
         a.entry.d-none#entryExample
             img
