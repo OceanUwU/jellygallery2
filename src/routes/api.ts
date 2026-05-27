@@ -3,6 +3,7 @@ import { Router } from 'express';
 import db from '../db';
 import { eq, desc, asc, and, count, sql, exists, like, SQL } from 'drizzle-orm';
 import { entries, Entry, entryTags, Tag, tags, TagType } from '../db/schema';
+import { getSearchQuery } from '../util';
 
 const router = Router();
 
@@ -38,40 +39,20 @@ router.get('/e/:id', async (req, res) => {
     res.json(e);
 });
 
-const pageLimit = 80;
-const maxPageLimit = 200;
 router.get('/entries', async (req, res) => {
-    let page = 0;
-    if (typeof req.query.p == "string")
-        page = Number.parseInt(req.query.p);
-    if (Number.isNaN(page) || page < 0) return res.status(400).send("invalid page number");
-    let tagFilter: Array<number> = [];
-    if (typeof req.query.t == "string")
-        tagFilter = req.query.t.split('-').map(t => Number.parseInt(t));
-    tagFilter = tagFilter.filter((t, i) => tagFilter.indexOf(t) === i);
-    if (tagFilter.some(t => Number.isNaN(t))) return res.status(400).send("invalid tag supplied");
-    let search = null;
-    if (typeof req.query.q == "string")
-        search = req.query.q;
-    if (search != null && search.length == 0)
-        search = null;
-    if (search != null && search.length > 25) return res.status(400).send("search query too long (max 25 chars)");
-    let limit = pageLimit;
-    if (typeof req.query.limit == "string") {
-        let qLimit = Number.parseInt(req.query.limit);
-        if (!Number.isNaN(qLimit))
-            limit = Math.min(maxPageLimit, Math.max(qLimit, 1));
-    }
+    let query = getSearchQuery(req);
+    if (typeof query == "string")
+            return res.status(400).send(query);
     let condition: SQL | undefined = eq(entries.listed, true);
-    for (let tag of tagFilter)
+    for (let tag of query.tags)
         condition = and(exists(db.select().from(entryTags).where(and(eq(entryTags.entry, entries.id), eq(entryTags.tag, tag)))), condition);
-    if (search != null)
-        condition = and(like(entries.title, "%"+search+"%"), condition)
-    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, date: entries.date}).from(entries).where(condition).orderBy(desc(entries.date)).offset(limit * page).limit(limit);
+    if (query.search != undefined)
+        condition = and(like(entries.title, "%"+query.search+"%"), condition)
+    let entry = await db.select({id: entries.filename, ext: entries.filetype, title: entries.title, date: entries.date}).from(entries).where(condition).orderBy(desc(entries.date)).offset(query.limit * query.page).limit(query.limit);
     let max = (await db.select({count: count()}).from(entries).where(condition))[0].count;
     res.json({
-        from: limit * page + 1,
-        to: Math.min(max, limit * page + entry.length),
+        from: query.limit * query.page + 1,
+        to: Math.min(max, query.limit * query.page + entry.length),
         of: max,
         entries: entry,
     });

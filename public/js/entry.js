@@ -33,3 +33,10 @@ for (let arc of document.querySelectorAll('.arc')) {
         }
     }));
 }
+
+let query = document.getElementById('query');
+if (query) query.href += location.search;
+let prevInQuery = document.getElementById('prevInQuery');
+if (prevInQuery) prevInQuery.href += location.search;
+let nextInQuery = document.getElementById('nextInQuery');
+if (nextInQuery) nextInQuery.href += location.search;

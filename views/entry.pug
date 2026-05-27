@@ -75,6 +75,17 @@ block content
             when 'file'
                 .border.mw-100.mb-2#entryEditFileDisplay
                     a.btn.btn-sm.btn-primary#entryEditFileDownload(src="/file/"+entry.filename+"."+entry.filetype target="_blank") Download file
+    if query.length > 0
+        .d-flex.justify-content-evenly.align-items-center.arc(style="gap: 0.5em")
+            if queryAdjacent.prev
+                a.btn.btn-sm.btn-primary#prevInQuery(href="/e/"+queryAdjacent.prev) < Prev
+            else
+                button.btn.btn-sm.btn-primary(disabled) < Prev
+            span: a#query(href="/entries")= query
+            if queryAdjacent.next
+                a.btn.btn-sm.btn-primary#nextInQuery(href="/e/"+queryAdjacent.next) Next >
+            else
+                button.btn.btn-sm.btn-primary(disabled) Next >
     .d-flex.justify-content-evenly.align-items-center(style="gap: 0.5em")
         if adjacent.prev
             a.btn.btn-sm.btn-outline-secondary(href="/e/"+adjacent.prev) < Prev
@@ -85,7 +96,7 @@ block content
             a.btn.btn-sm.btn-outline-secondary(href="/e/"+adjacent.next) Next >
         else
             button.btn.btn-sm.btn-outline-secondary(disabled style="opacity: 30%") Next >
-    if tagGroups.hasOwnProperty(3)
+    //-if tagGroups.hasOwnProperty(3)
         each arc in tagGroups[3]
             .d-flex.justify-content-evenly.align-items-center.arc(style="gap: 0.5em" data-arc=arc.id)
                 button.btn.btn-sm.btn-primary.prevInArc(disabled) < Prev
@@ -98,6 +109,8 @@ block content
     .text-center#tags
         if tagGroups.hasOwnProperty(4)
             span.text-center #[b Type]: !{tagList(4)}
+        if tagGroups.hasOwnProperty(3)
+            span.text-center #[b Arc]: !{tagList(3)}
         if tagGroups.hasOwnProperty(2)
             span.text-center #[b Characters]: !{tagList(2)}
         if tagGroups.hasOwnProperty(0)

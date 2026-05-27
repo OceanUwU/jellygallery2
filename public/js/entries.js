@@ -22,30 +22,35 @@ async function loadEntries(href) {
     if (data.to < data.of)
         document.getElementById('listedNext').removeAttribute('disabled');
     for (let entry of data.entries) {
-        let row = blankEntry.cloneNode(true);
-        row.href = "/e/" + entry.id;
+        let link = blankEntry.cloneNode(true);
+        link.setAttribute('entry', entry.id);
+        link.onclick = () => openEntry(entry.id);
         let fileType = getFileType(entry.ext);
-        row.setAttribute('title', entry.title);
-        new bootstrap.Popover(row, { trigger: 'hover focus', placement: 'top', container: 'body' });
+        link.setAttribute('title', entry.title);
+        new bootstrap.Popover(link, { trigger: 'hover focus', placement: 'top', container: 'body' });
         if (fileType != 'audio')
-            row.querySelector('.audioHint').remove();
+            link.querySelector('.audioHint').remove();
         if (fileType != 'video')
-            row.querySelector('.videoHint').remove();
+            link.querySelector('.videoHint').remove();
         if (entry.ext != 'gif')
-            row.querySelector('.gifHint').remove();
+            link.querySelector('.gifHint').remove();
         if (fileType == 'audio' || fileType == 'file') {
-            row.querySelector('img').remove();
+            link.querySelector('img').remove();
             let titleContainer = document.createElement('span');
             titleContainer.classList.add('fileTitle');
             let title = document.createElement('span');
             title.innerHTML = entry.title;
             titleContainer.appendChild(title);
-            row.insertBefore(titleContainer, row.firstChild);
+            link.insertBefore(titleContainer, link.firstChild);
         } else {
-            row.querySelector('img').src = "/thumb/"+entry.id+".png";
+            link.querySelector('img').src = "/thumb/"+entry.id+".png";
         }
-        document.getElementById('list').appendChild(row);
+        document.getElementById('list').appendChild(link);
     }
+}
+
+function openEntry(id) {
+    location.href = "/e/" + id + location.search;
 }
 
 function getTags() {
