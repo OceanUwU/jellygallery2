@@ -11,4 +11,4 @@ block content
             h6.card-subtitle.text-body.secondary=arc.description
             p.card-text Contains #{arc.entries.length} entr#{arc.entries.length == 1 ? "y" : "ies"}.
             span.card-text Start here:
-            a(href="/e/"+arc.entries[0].entries.filename): img.border(src="/thumb/"+arc.entries[0].entries.filename+".png")
+            a(href="/e/"+arc.entries[0].entries.filename+"?t="+arc.id"): img.border(src="/thumb/"+arc.entries[0].entries.filename+".png")
