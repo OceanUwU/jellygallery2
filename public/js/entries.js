@@ -24,7 +24,7 @@ async function loadEntries(href) {
     for (let entry of data.entries) {
         let link = blankEntry.cloneNode(true);
         link.setAttribute('entry', entry.id);
-        link.onclick = () => openEntry(entry.id);
+        link.href = "/e/"+entry.id+location.search;
         let fileType = getFileType(entry.ext);
         link.setAttribute('title', entry.title);
         new bootstrap.Popover(link, { trigger: 'hover focus', placement: 'top', container: 'body' });
@@ -47,10 +47,6 @@ async function loadEntries(href) {
         }
         document.getElementById('list').appendChild(link);
     }
-}
-
-function openEntry(id) {
-    location.href = "/e/" + id + location.search;
 }
 
 function getTags() {
