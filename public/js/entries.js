@@ -114,9 +114,17 @@ document.getElementById('liveSearch').onkeyup = event => {
     }, 250);
 }
 
-navigation.addEventListener("navigate", (event) => {
-    if (!new URL(event.destination.url).pathname.startsWith('/entries')) return;
-    loadEntries(event.destination.url);
+let oldReplaceState = history.replaceState;
+history.replaceState = function replaceState() {
+    let ret = oldReplaceState.apply(this, arguments);
+    window.dispatchEvent(new Event('replacestate'));
+    window.dispatchEvent(new Event('locationchange'));
+    return ret;
+};
+
+window.addEventListener("locationchange", (event) => {
+    if (!new URL(location.href).pathname.startsWith('/entries')) return;
+    loadEntries(location.href);
 })
 
 function incrementPage(by) {
