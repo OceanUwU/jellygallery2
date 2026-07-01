@@ -1,0 +1,3 @@
+[data-bs-theme="dark"] .chosen-choices {
+    background: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity)) !important;
+}
