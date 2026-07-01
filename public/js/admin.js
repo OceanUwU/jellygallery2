@@ -150,24 +150,6 @@ document.getElementById('createTagButton').onclick = () => {
 //document.getElementById("tagAdder").innerHTML = document.getElementById("allTags").innerHTML;
 //document.querySelectorAll("#tagAdder a").forEach(a => a.setAttribute("onclick", "addTag("+a.title+")"));
 
-const entryEditTags = document.getElementById("entryEditTags");
-function addTag(id) {
-    if (entryEditTags.value == "" || entryEditTags.value == null)
-        entryEditTags.value = id;
-    else if (entryEditTags.value.split(',').includes(id.toString()))
-        return
-    else
-        entryEditTags.value += "," + id;
-    entryEditTags.onchange();
-}
-entryEditTags.onkeyup = entryEditTags.onchange = () => {
-    if (entryEditTags.value == '') {
-        document.getElementById("editTagDisplay").innerText = 'No tags yet! Add some by clicking the links below.';
-        return;
-    }
-    document.getElementById("editTagDisplay").innerHTML = entryEditTags.value.split(",").map(i => `<b>${i}</b>: ${document.querySelector(`#allTags a[title='${i}']`) == null ? "UNKNOWN TAG" : document.querySelector(`#allTags a[title='${i}']`).innerText}`).join(', ');
-}
-
 function onAddTagChanged(event) {
     if (!document.getElementById("addTag").value.endsWith(',')) return;
     addTag(document.getElementById("addTag").value.slice(0, -1));
@@ -197,8 +179,37 @@ window.editEntry = async (id) => {
     document.getElementById('entryEditDate').value = dateString.substring(0, 17) + dateString.substring(20);
     document.getElementById('entryEditDesc').value = entry.description;
     document.getElementById('entryEditDescPreview').innerHTML = DOMPurify.sanitize(converter.makeHtml(document.getElementById('entryEditDesc').value));
-    entryEditTags.value = entry.tags.map(t => t.id).join(',');
-    entryEditTags.onchange();
+    //entryEditTags.value = entry.tags.map(t => t.id).join(',');
+    //entryEditTags.onchange();
+    let tagAdder = document.getElementById("addTag");
+    if (tagAdder.__chosen_instance != undefined)
+        tagAdder.chosen("destroy")
+    while (tagAdder.firstChild != null)
+        tagAdder.removeChild(tagAdder.lastChild);
+    for (let category of document.getElementById("allTags").children) {
+        let group = document.createElement('optgroup');
+        group.setAttribute("label", category.firstChild.innerText);
+        for (let tag of category.querySelectorAll('a')) {
+            let el = document.createElement("option");
+            let id = tag.getAttribute("title");
+            el.setAttribute("value", id);
+            el.innerText = tag.innerText;
+            let t = entry.tags.find(t => t.id == id);
+            if (t != null) {
+                el.setAttribute("selected", '');
+                el.order = entry.tags.indexOf(t);
+            }
+            group.appendChild(el);
+        }
+        tagAdder.appendChild(group);
+    }
+    tagAdder.chosen({
+        create_option: false,
+        skip_no_results: false,
+        width: "100%"
+    });
+    //for (let t of entry.tags)
+    //    tagAdder.__chosen_instance.choice_build(tagAdder.__chosen_instance.results_data.find(i => i.value == t.id));
     let type = getFileType(entry.ext);
     let path = '/file/'+entry.id+"."+entry.ext;
     document.getElementById('entryEditVideoDisplay').classList.add('d-none');
@@ -240,7 +251,7 @@ document.getElementById('editEntryButton').onclick = () => {
         listed: document.getElementById('entryEditListed').checked,
         title: document.getElementById('entryEditTitle').value,
         date: new Date(document.getElementById('entryEditDate').value).valueOf(),
-        tags: document.getElementById('entryEditTags').value,
+        tags: Array.from(document.getElementById("addTag_chosen").querySelectorAll(".search-choice")).map(e => e.getAttribute("data-value")).join(","),
         description: document.getElementById('entryEditDesc').value,
     };
     xhr.onload = () => {

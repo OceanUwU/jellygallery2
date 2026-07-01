@@ -3,6 +3,9 @@ extends /layout
 block title
     | Admin
 
+append css
+    link(href="/chosen/chosen.min.css" rel="stylesheet")
+
 block content
     if user == undefined
         .h-100.w-100.d-flex.align-items-center.justify-content-center.text.center.flex-column
@@ -37,7 +40,7 @@ block content
             if unlisted.length > 0
                 h5.mt-4 Unlisted Entries
                 .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
-                    each entry in unlisted
+                    each entry in unlistedpublic/chosen
                         .card
                             .d-flex.align-items-center(style="gap: 0.2em")
                                 img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
@@ -205,20 +208,8 @@ block content
                                     | If you want to link to a page on this site (e.g. another entry) you need not supply the entire URL e.g. [link title](/e/entryname) will take you to https://THIS.SITE/e/entryname.
                             .mb-1
                                 label.form-label(for="entryEditTags") Tags
-                                input.form-control#entryEditTags(type="text")
-                                .form-text#editTagDisplay Selected tags will appear here. Select a tag to begin.
-                            //-.d-flex.flex-column#tagAdder
                             .mb-3
-                                input.form-control.form-control-sm#addTag(placeholder="Start typing a tag's name or double click..." list="tagList")
-                                datalist#tagList
-                                    -
-                                        const types = ["Generic","Author","Character","Arc","Type"];
-                                    for tag in allTags
-                                        option(value=tag.i+",")
-                                            = tag.n
-                                            |  (
-                                            = types[tag.t]
-                                            | )
+                                select.chosen-select.w-100#addTag(data-placeholder="Click to add tags..." multiple)
                             span.small.text-secondary
                                 | Tags will appear to users in the order you provide within their respective groups. For example, "Generic2,Author3,Generic4,Author1,Character1" will show up as "Characters: Character1", "Tags: Generic2,Generic4" and "by Author3 & Author1".
                                 br
@@ -289,4 +280,5 @@ append js
     script(src="https://unpkg.com/omggif@1.0.10/omggif.js")
     script(src="https://unpkg.com/showdown@2.1.0/dist/showdown.min.js")
     script(src="https://unpkg.com/dompurify@3.3.1/dist/purify.min.js")
+    script(src="/chosen/chosen.js")
     script(type="module" src="/js/admin.js")
