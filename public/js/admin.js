@@ -150,13 +150,13 @@ document.getElementById('createTagButton').onclick = () => {
 //document.getElementById("tagAdder").innerHTML = document.getElementById("allTags").innerHTML;
 //document.querySelectorAll("#tagAdder a").forEach(a => a.setAttribute("onclick", "addTag("+a.title+")"));
 
-function onAddTagChanged(event) {
-    if (!document.getElementById("addTag").value.endsWith(',')) return;
-    addTag(document.getElementById("addTag").value.slice(0, -1));
-    document.getElementById("addTag").value = "";
-}
-document.getElementById("addTag").value = "";
-document.getElementById("addTag").onkeyup = document.getElementById("addTag").onchange = onAddTagChanged;
+//function onAddTagChanged(event) {
+//    if (!document.getElementById("addTag").value.endsWith(',')) return;
+//    addTag(document.getElementById("addTag").value.slice(0, -1));
+//    document.getElementById("addTag").value = "";
+//}
+//document.getElementById("addTag").value = "";
+//document.getElementById("addTag").onkeyup = document.getElementById("addTag").onchange = onAddTagChanged;
 
 let editingEntry = null;
 const converter = new showdown.Converter({
