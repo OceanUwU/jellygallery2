@@ -41,7 +41,7 @@ block content
             if unlisted.length > 0
                 h5.mt-4 Unlisted Entries
                 .d-flex.flex-wrap.justify-content-center(style="gap: 1em")
-                    each entry in unlistedpublic/chosen
+                    each entry in unlisted
                         .card
                             .d-flex.align-items-center(style="gap: 0.2em")
                                 img.rounded-start.border-end(src="/thumb/"+entry.filename+".png" style="object-fit: contain; width: 30px; height: 30px;")
